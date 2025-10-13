@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🎃 Pumpkin Collector - Colete as Abóboras!</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+        
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background: #000;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        #game {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(180deg, #1a0033 0%, #330066 100%);
+            overflow: hidden;
+        }
+        
+        #canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .hud {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            border: 3px solid #ff6b00;
+            border-radius: 15px;
+            padding: 15px 30px;
+            display: flex;
+            gap: 30px;
+            z-index: 100;
+            box-shadow: 0 0 30px rgba(255,107,0,0.6);
+        }
+        
+        .hud-item {
+            font-size: 16px;
+            color: #fff;
+            text-shadow: 2px 2px 0 #000;
+        }
+        
+        .hud-value {
+            color: #ff9500;
+        }
+        
+        .controls {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            gap: 20px;
+            z-index: 100;
+        }
+        
+        .btn-control {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #ff6b00, #ff9500);
+            border: 4px solid #fff;
+            border-radius: 50%;
+            font-size: 36px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 0 rgba(0,0,0,0.4);
+            cursor: pointer;
+            touch-action: none;
+        }
+        
+        .btn-control:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 rgba(0,0,0,0.4);
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+        
+        .overlay-content {
+            background: linear-gradient(135deg, #2d0052, #ff6b00);
+            border: 5px solid #ffa500;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 0 60px rgba(255,165,0,0.8);
+        }
+        
+        .title {
+            font-size: 32px;
+            color: #ffa500;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 0 #000;
+            animation: bounce 1s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .text {
+            font-size: 12px;
+            color: #fff;
+            line-height: 1.8;
+            margin: 15px 0;
+            text-shadow: 2px 2px 0 #000;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #ff6b00, #cc5500);
+            border: 3px solid #fff;
+            border-radius: 10px;
+            padding: 15px 30px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+            color: #fff;
+            cursor: pointer;
+            margin: 10px;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 0 #000;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.3);
+        }
+        
+        .cape-box {
+            background: linear-gradient(135deg, #ffa500, #ff6b00);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 4px solid #fff;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .cape-code {
+            font-size: 18px;
+            font-family: 'Courier New', monospace;
+            background: rgba(0,0,0,0.4);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            word-break: break-all;
+            border: 2px dashed #fff;
+            color: #fff;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .watermark {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 2px solid #ff6b00;
+            font-size: 10px;
+            color: #ff9500;
+            z-index: 99;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                display: flex;
+            }
+            .title {
+                font-size: 24px;
+            }
+            .text {
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <canvas id="canvas"></canvas>
+        
+        <div class="hud">
+            <div class="hud-item">🎃 NÍVEL: <span class="hud-value" id="level">1</span>/5</div>
+            <div class="hud-item">🪙 COLETADOS: <span class="hud-value" id="collected">0</span>/<span id="total">10</span></div>
+            <div class="hud-item">⭐ PONTOS: <span class="hud-value" id="score">0</span></div>
+            <div class="hud-item">⏱️ TEMPO: <span class="hud-value" id="timer">30</span>s</div>
+        </div>
+        
+        <div class="controls">
+            <div class="btn-control" id="btnLeft">◀</div>
+            <div class="btn-control" id="btnRight">▶</div>
+        </div>
+        
+        <div class="watermark">⚡ YORUS GAMES</div>
+    </div>
+    
+    <div class="overlay" id="startScreen">
+        <div class="overlay-content">
+            <div class="title">🎃 PUMPKIN COLLECTOR 🎃</div>
+            <div class="text">
+                <p style="font-size: 16px; color: #ffa500; margin: 20px 0;">🎮 JOGO SIMPLES E DIVERTIDO!</p>
+                <p><strong>COMO JOGAR:</strong></p>
+                <p>🎃 Mova seu personagem para coletar as abóboras</p>
+                <p>⚠️ Desvie dos obstáculos que caem</p>
+                <p>⏱️ Complete antes do tempo acabar</p>
+                <p>🏆 5 níveis cada vez mais rápidos!</p>
+                <br>
+                <p><strong>🎮 CONTROLES:</strong></p>
+                <p>PC: Setas ← → ou A / D</p>
+                <p>Mobile: Botões na tela</p>
+                <br>
+                <p style="color: #ffa500; font-size: 14px;">Complete os 5 níveis e ganhe uma CAPA OPTIFINE!</p>
+            </div>
+            <button class="btn" onclick="startGame()">🚀 COMEÇAR</button>
+        </div>
+    </div>
+    
+    <div class="overlay hidden" id="levelCompleteScreen">
+        <div class="overlay-content">
+            <div class="title">🎉 NÍVEL COMPLETO! 🎉</div>
+            <div class="text">
+                <p id="levelStats"></p>
+            </div>
+            <button class="btn" onclick="nextLevel()">➡️ PRÓXIMO NÍVEL</button>
+        </div>
+    </div>
+    
+    <div class="overlay hidden" id="gameOverScreen">
+        <div class="overlay-content">
+            <div class="title">⏰ TEMPO ESGOTADO! ⏰</div>
+            <div class="text">
+                <p id="gameOverStats"></p>
+            </div>
+            <button class="btn" onclick="restartGame()">🔄 TENTAR NOVAMENTE</button>
+        </div>
+    </div>
+    
+    <div class="overlay hidden" id="victoryScreen">
+        <div class="overlay-content">
+            <div class="title">🏆 VOCÊ VENCEU! 🏆</div>
+            <div class="text">
+                <p>Parabéns! Você completou todos os 5 níveis!</p>
+                <div class="cape-box">
+                    <h2 style="font-size: 20px; margin-bottom: 15px;">🎁 SUA CAPA OPTIFINE 🎁</h2>
+                    <p style="font-size: 11px; margin: 10px 0;">Copie seu código exclusivo:</p>
+                    <div class="cape-code" id="capeCode">CARREGANDO...</div>
+                    <button class="btn" onclick="copyCape()">📋 COPIAR CÓDIGO</button>
+                    <p style="font-size: 10px; margin-top: 10px;">⚠️ Use em optifine.net/cape</p>
+                </div>
+                <p id="finalStats"></p>
+            </div>
+            <button class="btn" onclick="restartGame()">🎮 JOGAR NOVAMENTE</button>
+        </div>
+    </div>
+    
+    <script>
+        'use strict';
+        
+        // Proteção e Capa
+        (function(){
+            const codes=['a2FtaWwtYnVqYWxza2lAbzIucGw6NzVURTVYVlJISA==','bGlsc2l4aW5va2M3QGdtYWlsLmNvbTpUQ085N1VRMjdX','aW94ZGFyazM3Mnl0QGdtYWlsLmNvbTo4SE5UU0Q2MzVF','Y29udGF0by5zNHp6eEBnbWFpbC5jb206WldMTzJaUlNDQw==','bWF0MjkubWdAZ21haWwuY29tOkw0TFhYRU1LWEU=','bWFydGlqbmRvb3JkdWluMjAwN0BnbWFpbC5jb206VlpWUlRJVFpONA==','YWxjcmFmdDEyQGdtYWlsLmNvbTpOMjBZQVc2NldT','c2xpbmV3b2xmQGdtYWlsLmNvbTozUlY5UkNXVEpT','VGhvbWFzX2FuZGVyc2VuMzBAaG90bWFpbC5jb206Nk0xN0s5U1dIQw==','cGVkcm9iYWlkYWwyMDE0QGhvdG1haWwuY29tOlhXN0NLUVBLOUk=','amFtZXNodWxnYW5uQGdtYWlsLmNvbTpOQzZSVjlFMTNN','emVuYS5raGVyYmVjaGVAZ21haWwuY29tOjhIODYyTzlRWTM=','c2VpZmppZWRAeWFob28uY29tOkkxOUVGSjNMMEE=','ZnJ1bW9zdTE5OTRAbWFpbC5ydTpFME1KSEVLREU=','bHVjaWFubjc4NkBHbWFpbC5jb206WUswVUJRUE1MVg==','ZGlvbi5kb21taXNzZUBnbWFpbC5jb206TU9aNFM2S1lKTg==','d29qYWtha2FAZ21haWwuY29tOjNXQURWVFVQNDY=','ZmlsaXBrb2N3aW5AZ21haWwuY29tOlkxOU8xOVhEU0g=','Y3VucGh1YzEwQGdtYWlsLmNvbTo1SDVFMsktRVNMOQ==','Y29sZXlldGhhbkB5YWhvby5jb206UzE2SDRQMzIxTg==','bG9raWRva2kyNmtvbG9AZ21haWwuY29tOklNUzRQT0YwSDM=','bHVpemx1aXozenpwQGdtYWlsLmNvbTpZRlk2NUs3SDhX','c2FtdWVsZ2ZyQGdtYWlsLmNvbTpWOURGT1E0VTNEA==','ZHJhZ29ua25pZ2h0ODhAaG90bWFpbC5jb206U0pLSlFPRURXVw==','bG9vbG9zaDc0QGdtYWlsLmNvbTpDN1k2TDFKNkRB','bHh2aXNobGVvQGdtYWlsLmNvbTpDMU0xNVUxVldT','eGVuZGVyYWxleF95dEBob3RtYWlsLmNvbTpJNkFTN1NSNzAy','anVua3MyMDAxQGdtYWlsLmNvbToxQ1EzSTBMMkJC','aWFtZGFib21iMTVAZ21haWwuY29tOlRDVExOOU1EWjk=','emlnYS52b2RuanprNEBnbWFpbC5jb206SkE0SjRZMDJDMQ==','bWV2ZWxhckB5YWhvby5jb206WExDRDNPOU9KUw==','VmlwM3JmcmFtM0BnbWFpbC5jb206Rlk3STVPMVJYMQ==','bW1vb25ncmF2ZXNAZ21haWwuY29tOjc4SUVFOUY5RjI=','YnJhbnF1ZWxvb282OUBnbWFpbC5jb206VkFKTkE2QVY2OA==','cmV4bHAxMDBAd2ViLmRlOjhOSzlVUTBWVFk=','YWRyaWFuYS50aW5vY29AYm9sLmNvbS5icjo5ODlSMkhCWk5P','aXZlcmEzNzIuaXY4M0BnbWFpbC5jb206MkpVRFZFWktVNw==','Q2hyeXM2N0BsaXZlLml0OkFIQUgzMjZUMzU=','cmFyYXkxMTlAeWFob28uY28uanA6V0FLMjcyV0Q3Mg==','ZGFzLmRhbmllbEB0LW9ubGluZS5kZTpXUEU1VlVLMTBN','cGFyazM0QGdtYWlsLmNvbTo4Q1RDWlZDWFNY','dmVybzlAYmJveC5mcjpDRVlMTEY3UEE1','QXJpZWxjYjA3QGdtYWlsLmNvbTpEMzBUMDUyUzVD','cGFzY2FsZG9yaWFuMTQwNUBnbWFpbC5jb206RVk0N05XTjlRRQ==','dGVvc2V2ZXJpbmlnaWxtYW50QGdtYWlsLmNvbTo3SVVCSF NTQ1JWTg==','bWFzc2ltby5hbmdoZWw4MEBpY2xvdWQuY29tOlBFME84Wk1DTTY=','dml0b3JwNGNvbWJhZG9yQG91dGxvb2suY29tOkRLSVdRRkRKTTU=','c2FyYXMuYXB1bHNraXNAZ21haWwuY29tOjJEM1hCQTk5NjU=','bm9haC5tYWNlcmlAZ21haWwuY29tOkhaMFZFTjRDTE4=','Y29sdG9ua21vc2xleUBnbWFpbC5jb206MjJFMDMwUk5UWQ==','ZW1pbGlhbm9jb3JuMTAxQGdtYWlsLmNvbTpUWDdWVTNIR1o2','Y2FtbXl3YW1teTMyd0BnbWFpbC5jb206N0ZSQUtYM05aOA==','eWlzZTI3MTFAZ21haWwuY29tOjdXU1BQWTZMTlI=','aHVuMjAxNzA4MTJAZtbWFpbC5jb206WVlZMlBJM1pTTA==','d2dvbnphbG8yMkBnbWFpbC5jb206VTg4NFY1U0lISw==','cmVsb2FkMjA1N0BnbWFpbC5jb206Tko4VDNKT0hBVw==','Z3Jlc2tvLmFuZHJlajY5QGdtYWlsLmNvbTo4WlZXUVA0UFFQ','UXVpY2tsZXk4OEBnbWFpbC5jb206RU9aTVJVVTA5Tg==','a2tzaXBvc0BnbWFpbC5jb206MDNFQlpBNUkyRw==','bWxhcm9jaGUyMDA1QGdtYWlsLmNvbTo5WUs5Tk1GMVZN','YWFyb25zaHJzQGdtYWlsLmNvbTpCWUlQN1A2RThD','S2FyZW52YW5jZTFAaG90bWFpbC5jb206ODhHTFVPSEU1MA==','cm9jaGFpc2Fkb3JhMzdAZ21haWwuY29tOjU1UkVVRzVHTU4=','YnJhbTI1MDgwNkBnbWFpbC5jb206ODFJNVBPUVRDTA==','cmFmYWVsZnNvYnJvc2FAZ21haWwuY29tOk5CMzFWUlcyOEI=','YWxhbnBhc3RyaWFuMTIzNDU2QGdtYWlsLmNvbTpJRTRDU1A0SEU5','amtuaWprYW5AZ21haWwuY29tOlhYVzdJMzdPTEE=','TmVkZXJraXBwaWVAZ21haWwuY29tOlBST1AzS05ZME0=','YWhsYW1fYV81NTVAaG90bWFpbC5jb206Vk5IUU5LQjNXQw==','bHVjYXNrZWxsbmVyMDhAeWFob28uY29tOktGUkxLQTA1Q00=','bmFyb3preTI2LjQuZEBnbWFpbC5jb206T1ZaTUVCVjBZSQ==','c3VwZXJwb2xhcjQ1MkBnbWFpbC5jb206QU0yNFpVQ05BNQ==','dGltQGl0ZWFjaGVtLmNvbTo2OVlFUThIUDNK','cHdpbGRlbjIzQGdtYWlsLmNvbToyT0dNQVk5OUlD','YnJhbmRvbm1odXluaEBnbWFpbC5jb206VTFaNDZWV1JZQA==','YWxpbi5jb3NtZWxlYXRhQGdtYWlsLmNvbTpYVkk5NjRZNTZG','cGF0YW1vc2h0YTk3QGdtYWlsLmNvbTpXMTBCV0pBUFhF','amhsZWU4NTYyQGdtYWlsLmNvbTpSMlc4N0NPMzJY','bGlrZWRmb3J0bml0ZUB3ZWIuZGU6Q0tES1FKQzFPNQ==','aWRhbmllbC5pbGFib3lAZ21haWwuY29tOjdYVVo4ODhET0g=','Y2hpbGVhbmNqbUBnbWFpbC5jb206U1FEMkRLNlU0Qw==','bG91aXNoYWdzcGllbDVAZ21haWwuY29tOlNWWEdCUVlUMlc=','cm9iZXJ0b2QxNHVAZ21haWwuY29tOlpFVzRPWUFYUEw=','bWhhY2tldHQyM0BnbWFpbC5jb206WU5PQk9SRzlOTg==','dHJra2ViYWJAZ21haWwuY29tOjYzMU81N044V00=','anVhbi5jYW1pbG8uMjcubGV5dG9uQGdtYWlsLmNvbTpCM1hVUVlWS0xG','ZGVzdGlsbGFidXNpbmVzc0BnbWFpbC5jb206VVBSVDdBTzVZQg==','bHJvZWhtQG5jLnJyLmNvbTpDTE8zSVZGQTkx','bW9oYW1lZDZuYXNAZ21haWwuY29tOktXQ1pCV0pFN0Y=','ZGJsdW1lbmFAeWFob28uY29tOk9STDRXSUVRRDU=','a3VraWthcmVva0BnbWFpbC5jb206M0tNSEVFUk9HSA==','YW5kcmV3bGVvcmljaEBpY2xvdWQuY29tOllFUUpBOTQwV04=','c3dlZWt6eUBnbWFpbC5jb206M0xIN1FLM1ZVSg==','dmlwZWdpNDcwM0ByZWx1bXl4LmNvbTpIRjMwR1BJQVo4','ZGF2aWRkZzc3Ny5kZzg1QGdtYWlsLmNvbTpHQUVOUFdGNU01','Z2FuY2E5ODVAZ21haWwuY29tOlRSSlpNVldMMDg=','UGF0cmlrLnZhY3VsaW5vQGdtYWlsLmNvbTo3TTlFM1NFN1Ex'];
+            window._getCape=()=>atob(codes[Date.now()%codes.length]);
+            document.addEventListener('contextmenu',e=>e.preventDefault());
+            document.addEventListener('keydown',e=>{
+                if(e.keyCode===123||(e.ctrlKey&&e.shiftKey))e.preventDefault();
+            });
+        })();
+        
+        // Setup Canvas
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let W, H;
+        
+        function resize() {
+            W = canvas.width = window.innerWidth;
+            H = canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+        
+        // Game State
+        const game = {
+            state: 'menu',
+            level: 1,
+            score: 0,
+            collected: 0,
+            needed: 10,
+            timer: 30,
+            lastTime: 0,
+            keys: {},
+            touch: {left: false, right: false}
+        };
+        
+        // Player
+        const player = {
+            x: W / 2,
+            y: H - 120,
+            w: 60,
+            h: 60,
+            speed: 8
+        };
+        
+        // Arrays
+        let pumpkins = [];
+        let obstacles = [];
+        let particles = [];
+        
+        // Classes
+        class Pumpkin {
+            constructor() {
+                this.x = Math.random() * (W - 40);
+                this.y = -40;
+                this.w = 40;
+                this.h = 40;
+                this.speed = 2 + game.level * 0.5;
+                this.collected = false;
+            }
+            
+            update() {
+                this.y += this.speed;
+                
+                // Colisão com player
+                if (!this.collected && 
+                    this.x < player.x + player.w &&
+                    this.x + this.w > player.x &&
+                    this.y < player.y + player.h &&
+                    this.y + this.h > player.y) {
+                    this.collected = true;
+                    game.collected++;
+                    game.score += 100 * game.level;
+                    makeParticles(this.x + 20, this.y + 20, '#ff6b00');
+                    updateHUD();
+                }
+                
+                return this.y < H + 50;
+            }
+            
+            draw() {
+                if (this.collected) return;
+                
+                // Abóbora
+                ctx.fillStyle = '#ff6b00';
+                ctx.beginPath();
+                ctx.arc(this.x + 20, this.y + 20, 18, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Olhos
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.moveTo(this.x + 10, this.y + 15);
+                ctx.lineTo(this.x + 15, this.y + 20);
+                ctx.lineTo(this.x + 10, this.y + 20);
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.moveTo(this.x + 30, this.y + 15);
+                ctx.lineTo(this.x + 25, this.y + 20);
+                ctx.lineTo(this.x + 30, this.y + 20);
+                ctx.fill();
+                
+                // Boca
+                ctx.beginPath();
+                ctx.arc(this.x + 20, this.y + 25, 8, 0, Math.PI);
+                ctx.fill();
+                
+                // Talo
+                ctx.fillStyle = '#2d5016';
+                ctx.fillRect(this.x + 17, this.y + 2, 6, 8);
+            }
+        }
+        
+        class Obstacle {
+            constructor() {
+                this.x = Math.random() * (W - 50);
+                this.y = -50;
+                this.w = 50;
+                this.h = 50;
+                this.speed = 3 + game.level * 0.7;
+                this.hit = false;
+            }
+            
+            update() {
+                this.y += this.speed;
+                
+                // Colisão com player
+                if (!this.hit &&
+                    this.x < player.x + player.w &&
+                    this.x + this.w > player.x &&
+                    this.y < player.y + player.h &&
+                    this.y + this.h > player.y) {
+                    this.hit = true;
+                    game.score = Math.max(0, game.score - 50);
+                    makeParticles(this.x + 25, this.y + 25, '#9932CC');
+                    updateHUD();
+                }
+                
+                return this.y < H + 50;
+            }
+            
+            draw() {
+                // Fantasma roxo
+                ctx.fillStyle = '#9932CC';
+                ctx.globalAlpha = this.hit ? 0.3 : 1;
+                
+                ctx.beginPath();
+                ctx.arc(this.x + 25, this.y + 20, 20, Math.PI, 0);
+                ctx.lineTo(this.x + 45, this.y + 50);
+                ctx.lineTo(this.x + 37, this.y + 43);
+                ctx.lineTo(this.x + 30, this.y + 50);
+                ctx.lineTo(this.x + 20, this.y + 43);
+                ctx.lineTo(this.x + 13, this.y + 50);
+                ctx.lineTo(this.x + 5, this.y + 43);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Olhos
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(this.x + 17, this.y + 20, 5, 0, Math.PI * 2);
+                ctx.arc(this.x + 33, this.y + 20, 5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(this.x + 18, this.y + 21, 3, 0, Math.PI * 2);
+                ctx.arc(this.x + 34, this.y + 21, 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.globalAlpha = 1;
+            }
+        }
+        
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 6;
+                this.vy = (Math.random() - 0.5) * 6 - 2;
+                this.life = 1;
+                this.color = color;
+                this.size = Math.random() * 6 + 2;
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.2;
+                this.life -= 0.02;
+                return this.life > 0;
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.size, this.size);
+                ctx.restore();
+            }
+        }
+        
+        // Functions
+        function makeParticles(x, y, color) {
+            for (let i = 0; i < 10; i++) {
+                particles.push(new Particle(x, y, color));
+            }
+        }
+        
+        function updateHUD() {
+            document.getElementById('level').textContent = game.level;
+            document.getElementById('collected').textContent = game.collected;
+            document.getElementById('total').textContent = game.needed;
+            document.getElementById('score').textContent = game.score;
+        }
+        
+        function spawnPumpkin() {
+            if (game.state !== 'playing') return;
+            pumpkins.push(new Pumpkin());
+            setTimeout(spawnPumpkin, 1000 - game.level * 100);
+        }
+        
+        function spawnObstacle() {
+            if (game.state !== 'playing') return;
+            obstacles.push(new Obstacle());
+            setTimeout(spawnObstacle, 1500 - game.level * 150);
+        }
+        
+        function updatePlayer() {
+            if (game.keys.ArrowLeft || game.keys.a || game.touch.left) {
+                player.x -= player.speed;
+            }
+            if (game.keys.ArrowRight || game.keys.d || game.touch.right) {
+                player.x += player.speed;
+            }
+            
+            player.x = Math.max(0, Math.min(W - player.w, player.x));
+        }
+        
+        function drawPlayer() {
+            const x = player.x;
+            const y = player.y;
+            
+            // Sombra
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.beginPath();
+            ctx.ellipse(x + 30, y + 55, 25, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Chapéu de bruxa
+            ctx.fillStyle = '#4B0082';
+            ctx.beginPath();
+            ctx.moveTo(x + 10, y + 10);
+            ctx.lineTo(x + 30, y - 5);
+            ctx.lineTo(x + 50, y + 10);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.fillRect(x + 5, y + 10, 50, 6);
+            
+            // Cabeça
+            ctx.fillStyle = '#ff9500';
+            ctx.beginPath();
+            ctx.arc(x + 30, y + 28, 18, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Olhos
+            ctx.fillStyle = '#000';
+            ctx.fillRect(x + 22, y + 25, 4, 4);
+            ctx.fillRect(x + 34, y + 25, 4, 4);
+            
+            // Boca
+            ctx.beginPath();
+            ctx.arc(x + 30, y + 32, 6, 0, Math.PI);
+            ctx.fill();
+            
+            // Corpo
+            ctx.fillStyle = '#2d0052';
+            ctx.fillRect(x + 15, y + 40, 30, 20);
+            
+            // Capa
+            ctx.fillStyle = '#ff6b00';
+            ctx.beginPath();
+            ctx.moveTo(x + 15, y + 42);
+            ctx.lineTo(x + 5, y + 50);
+            ctx.lineTo(x + 10, y + 58);
+            ctx.lineTo(x + 15, y + 60);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.moveTo(x + 45, y + 42);
+            ctx.lineTo(x + 55, y + 50);
+            ctx.lineTo(x + 50, y + 58);
+            ctx.lineTo(x + 45, y + 60);
+            ctx.closePath();
+            ctx.fill();
+        }
+        
+        function drawBackground() {
+            // Céu
+            const grad = ctx.createLinearGradient(0, 0, 0, H);
+            grad.addColorStop(0, '#1a0033');
+            grad.addColorStop(1, '#330066');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, W, H);
+            
+            // Estrelas
+            ctx.fillStyle = '#fff';
+            for (let i = 0; i < 80; i++) {
+                const x = (i * 137) % W;
+                const y = (i * 73) % H;
+                const size = (i % 3) + 1;
+                ctx.fillRect(x, y, size, size);
+            }
+            
+            // Lua
+            ctx.fillStyle = '#ffa500';
+            ctx.shadowColor = '#ffa500';
+            ctx.shadowBlur = 30;
+            ctx.beginPath();
+            ctx.arc(W - 100, 80, 35, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+        
+        function checkLevel() {
+            if (game.collected >= game.needed) {
+                game.state = 'levelComplete';
+                const bonus = Math.floor(game.timer * 10);
+                game.score += bonus;
+                document.getElementById('levelStats').innerHTML = `
+                    <p style="font-size: 16px; color: #ffa500;">🎃 ${game.collected}/${game.needed} COLETADOS!</p>
+                    <br>
+                    <p><strong>Pontos:</strong> ${game.score}</p>
+                    <p><strong>Bônus de Tempo:</strong> +${bonus}</p>
+                `;
+                document.getElementById('levelCompleteScreen').classList.remove('hidden');
+            }
+        }
+        
+        function updateTimer() {
+            if (game.state !== 'playing') return;
+            
+            const now = Date.now();
+            if (now - game.lastTime >= 1000) {
+                game.timer--;
+                document.getElementById('timer').textContent = game.timer;
+                game.lastTime = now;
+                
+                if (game.timer <= 0) {
+                    gameOver();
+                }
+            }
+        }
+        
+        function nextLevel() {
+            document.getElementById('levelCompleteScreen').classList.add('hidden');
+            
+            if (game.level >= 5) {
+                victory();
+            } else {
+                game.level++;
+                startLevel();
+            }
+        }
+        
+        function startLevel() {
+            game.state = 'playing';
+            game.collected = 0;
+            game.needed = 10 + game.level * 2;
+            game.timer = 30 + game.level * 5;
+            game.lastTime = Date.now();
+            
+            pumpkins = [];
+            obstacles = [];
+            particles = [];
+            
+            player.x = W / 2;
+            
+            updateHUD();
+            spawnPumpkin();
+            spawnObstacle();
+        }
+        
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            game.level = 1;
+            game.score = 0;
+            startLevel();
+        }
+        
+        function gameOver() {
+            game.state = 'gameover';
+            document.getElementById('gameOverStats').innerHTML = `
+                <p><strong>Nível Alcançado:</strong> ${game.level}/5</p>
+                <br>
+                <p><strong>Pontos:</strong> ${game.score}</p>
+                <p><strong>Abóboras Coletadas:</strong> ${game.collected}</p>
+            `;
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+        }
+        
+        function victory() {
+            game.state = 'victory';
+            const code = window._getCape();
+            document.getElementById('capeCode').textContent = code;
+            document.getElementById('finalStats').innerHTML = `
+                <p style="font-size: 14px;"><strong>PONTOS FINAIS: ${game.score}</strong></p>
+            `;
+            document.getElementById('victoryScreen').classList.remove('hidden');
+        }
+        
+        function restartGame() {
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            document.getElementById('victoryScreen').classList.add('hidden');
+            startGame();
+        }
+        
+        function copyCape() {
+            const code = document.getElementById('capeCode').textContent;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(code).then(() => {
+                    event.target.textContent = '✅ COPIADO!';
+                    setTimeout(() => event.target.textContent = '📋 COPIAR CÓDIGO', 2000);
+                });
+            } else {
+                const t = document.createElement('textarea');
+                t.value = code;
+                t.style.position = 'fixed';
+                t.style.opacity = '0';
+                document.body.appendChild(t);
+                t.select();
+                document.execCommand('copy');
+                document.body.removeChild(t);
+                alert('Código copiado!');
+            }
+        }
+        
+        function gameLoop() {
+            if (game.state === 'playing') {
+                drawBackground();
+                
+                updatePlayer();
+                updateTimer();
+                
+                pumpkins = pumpkins.filter(p => p.update());
+                obstacles = obstacles.filter(o => o.update());
+                particles = particles.filter(p => p.update());
+                
+                pumpkins.forEach(p => p.draw());
+                obstacles.forEach(o => o.draw());
+                drawPlayer();
+                particles.forEach(p => p.draw());
+                
+                checkLevel();
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Events
+        document.addEventListener('keydown', e => {
+            game.keys[e.key] = true;
+            if (['ArrowLeft', 'ArrowRight'].includes(e.key)) e.preventDefault();
+        });
+        
+        document.addEventListener('keyup', e => {
+            game.keys[e.key] = false;
+        });
+        
+        document.getElementById('btnLeft').addEventListener('touchstart', e => {
+            e.preventDefault();
+            game.touch.left = true;
+        });
+        
+        document.getElementById('btnLeft').addEventListener('touchend', e => {
+            e.preventDefault();
+            game.touch.left = false;
+        });
+        
+        document.getElementById('btnRight').addEventListener('touchstart', e => {
+            e.preventDefault();
+            game.touch.right = true;
+        });
+        
+        document.getElementById('btnRight').addEventListener('touchend', e => {
+            e.preventDefault();
+            game.touch.right = false;
+        });
+        
+        gameLoop();
+    </script>
+</body>
+</html>
