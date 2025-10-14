@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>🎃 Pumpkin Collector - Colete as Abóboras!</title>
+    <title>🎃 Pumpkin Ween - Halloween Adventure</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         
@@ -12,286 +12,642 @@
             padding: 0;
             box-sizing: border-box;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
         
         body {
             font-family: 'Press Start 2P', cursive;
             background: #000;
             overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        
-        #game {
-            position: relative;
             width: 100vw;
             height: 100vh;
-            background: linear-gradient(180deg, #1a0033 0%, #330066 100%);
-            overflow: hidden;
-        }
-        
-        #canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-        
-        .hud {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
-            border: 3px solid #ff6b00;
-            border-radius: 15px;
-            padding: 15px 30px;
-            display: flex;
-            gap: 30px;
-            z-index: 100;
-            box-shadow: 0 0 30px rgba(255,107,0,0.6);
-        }
-        
-        .hud-item {
-            font-size: 16px;
-            color: #fff;
-            text-shadow: 2px 2px 0 #000;
-        }
-        
-        .hud-value {
-            color: #ff9500;
-        }
-        
-        .controls {
-            position: fixed;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: none;
-            gap: 20px;
-            z-index: 100;
-        }
-        
-        .btn-control {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #ff6b00, #ff9500);
-            border: 4px solid #fff;
-            border-radius: 50%;
-            font-size: 36px;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 8px 0 rgba(0,0,0,0.4);
-            cursor: pointer;
             touch-action: none;
         }
         
-        .btn-control:active {
-            transform: translateY(4px);
-            box-shadow: 0 4px 0 rgba(0,0,0,0.4);
+        #gameContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
         }
         
+        #canvas {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            background: #1a1a2e;
+        }
+        
+        /* HUD */
+        .hud {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background: rgba(10,10,10,0.92);
+            border: 4px solid #ff6b00;
+            border-radius: 12px;
+            padding: 12px 18px;
+            z-index: 100;
+            box-shadow: 0 0 25px rgba(255,107,0,0.6), inset 0 0 20px rgba(255,107,0,0.1);
+            font-size: 11px;
+            color: #fff;
+            line-height: 1.8;
+            backdrop-filter: blur(5px);
+        }
+        
+        .hud-value {
+            color: #ffa500;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255,165,0,0.8);
+        }
+        
+        /* Inventory */
+        .inventory {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: rgba(10,10,10,0.92);
+            border: 4px solid #ff6b00;
+            border-radius: 12px;
+            padding: 12px;
+            z-index: 100;
+            box-shadow: 0 0 25px rgba(255,107,0,0.6);
+            backdrop-filter: blur(5px);
+        }
+        
+        .inv-title {
+            font-size: 9px;
+            color: #ffa500;
+            text-align: center;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255,165,0,0.8);
+        }
+        
+        .inv-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 55px);
+            gap: 6px;
+        }
+        
+        .inv-slot {
+            width: 55px;
+            height: 55px;
+            background: rgba(20,20,30,0.8);
+            border: 3px solid #333;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .inv-slot:hover {
+            border-color: #666;
+            transform: scale(1.05);
+        }
+        
+        .inv-slot.has-item {
+            background: rgba(255,165,0,0.25);
+            border-color: #ffa500;
+            animation: itemGlow 2s infinite;
+        }
+        
+        .inv-slot.selected {
+            border-color: #00ff00;
+            box-shadow: 0 0 20px rgba(0,255,0,0.9);
+            background: rgba(0,255,0,0.15);
+        }
+        
+        @keyframes itemGlow {
+            0%, 100% { 
+                box-shadow: 0 0 8px rgba(255,165,0,0.4);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 20px rgba(255,165,0,0.9);
+                transform: scale(1.05);
+            }
+        }
+        
+        /* Mobile Controls */
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            display: none;
+            z-index: 100;
+        }
+        
+        .dpad {
+            position: relative;
+            width: 160px;
+            height: 160px;
+        }
+        
+        .btn-dpad {
+            position: absolute;
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, #ff6b00 0%, #ff9500 100%);
+            border: 4px solid rgba(255,255,255,0.9);
+            border-radius: 10px;
+            font-size: 22px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.5), 0 0 15px rgba(255,107,0,0.5);
+            touch-action: none;
+            user-select: none;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+        
+        .btn-dpad:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.5), 0 0 15px rgba(255,107,0,0.5);
+        }
+        
+        .btn-dpad.up { top: 0; left: 52px; }
+        .btn-dpad.down { bottom: 0; left: 52px; }
+        .btn-dpad.left { top: 52px; left: 0; }
+        .btn-dpad.right { top: 52px; right: 0; }
+        
+        .btn-action {
+            position: fixed;
+            bottom: 90px;
+            right: 40px;
+            width: 75px;
+            height: 75px;
+            background: linear-gradient(135deg, #00ff00 0%, #00cc00 100%);
+            border: 5px solid rgba(255,255,255,0.9);
+            border-radius: 50%;
+            font-size: 12px;
+            color: #fff;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 7px 0 rgba(0,0,0,0.5), 0 0 20px rgba(0,255,0,0.6);
+            z-index: 100;
+            touch-action: none;
+            text-align: center;
+            line-height: 1.2;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+        
+        .btn-action:active {
+            transform: translateY(4px);
+            box-shadow: 0 3px 0 rgba(0,0,0,0.5), 0 0 20px rgba(0,255,0,0.6);
+        }
+        
+        /* Overlays */
         .overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.95);
+            background: rgba(0,0,0,0.97);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 200;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
         .overlay-content {
-            background: linear-gradient(135deg, #2d0052, #ff6b00);
-            border: 5px solid #ffa500;
-            border-radius: 20px;
-            padding: 40px;
-            max-width: 600px;
+            background: linear-gradient(135deg, #2d0052 0%, #ff6b00 100%);
+            border: 6px solid #ffa500;
+            border-radius: 25px;
+            padding: 35px;
+            max-width: 95%;
+            max-height: 95vh;
+            overflow-y: auto;
             text-align: center;
-            box-shadow: 0 0 60px rgba(255,165,0,0.8);
+            box-shadow: 0 0 80px rgba(255,165,0,0.9), inset 0 0 40px rgba(0,0,0,0.3);
+            animation: slideIn 0.5s;
+        }
+        
+        @keyframes slideIn {
+            from { 
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
         
         .title {
             font-size: 32px;
             color: #ffa500;
-            margin-bottom: 20px;
-            text-shadow: 3px 3px 0 #000;
-            animation: bounce 1s infinite;
+            margin-bottom: 25px;
+            text-shadow: 4px 4px 0 #000, 0 0 20px rgba(255,165,0,0.8);
+            animation: titleBounce 1.5s infinite;
+            letter-spacing: 2px;
         }
         
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+        @keyframes titleBounce {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.05); }
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            color: #00ff88;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0 #000, 0 0 15px rgba(0,255,136,0.8);
+            animation: glow 2s infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
         
         .text {
-            font-size: 12px;
+            font-size: 11px;
             color: #fff;
             line-height: 1.8;
             margin: 15px 0;
             text-shadow: 2px 2px 0 #000;
         }
         
+        .text strong {
+            color: #ffa500;
+        }
+        
         .btn {
-            background: linear-gradient(135deg, #ff6b00, #cc5500);
-            border: 3px solid #fff;
-            border-radius: 10px;
+            background: linear-gradient(135deg, #ff6b00 0%, #cc5500 100%);
+            border: 4px solid #fff;
+            border-radius: 12px;
             padding: 15px 30px;
             font-family: 'Press Start 2P', cursive;
-            font-size: 14px;
+            font-size: 13px;
             color: #fff;
             cursor: pointer;
             margin: 10px;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+            box-shadow: 0 5px 0 rgba(0,0,0,0.4), 0 0 20px rgba(255,107,0,0.5);
             text-shadow: 2px 2px 0 #000;
+            transition: all 0.2s;
         }
         
         .btn:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 0 rgba(0,0,0,0.4), 0 0 30px rgba(255,107,0,0.8);
         }
         
         .btn:active {
             transform: translateY(2px);
-            box-shadow: 0 2px 0 rgba(0,0,0,0.3);
+            box-shadow: 0 3px 0 rgba(0,0,0,0.4), 0 0 20px rgba(255,107,0,0.5);
         }
         
+        /* Cape Box */
         .cape-box {
-            background: linear-gradient(135deg, #ffa500, #ff6b00);
+            background: linear-gradient(135deg, #ffa500 0%, #ff6b00 100%);
             padding: 25px;
-            border-radius: 15px;
+            border-radius: 18px;
             margin: 20px 0;
-            border: 4px solid #fff;
-            animation: pulse 2s infinite;
+            border: 5px solid #fff;
+            animation: capePulse 2.5s infinite;
+            box-shadow: 0 0 40px rgba(255,165,0,0.8);
         }
         
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+        @keyframes capePulse {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 0 40px rgba(255,165,0,0.8);
+            }
+            50% { 
+                transform: scale(1.03);
+                box-shadow: 0 0 60px rgba(255,165,0,1);
+            }
         }
         
         .cape-code {
-            font-size: 18px;
+            font-size: 13px;
             font-family: 'Courier New', monospace;
-            background: rgba(0,0,0,0.4);
+            background: rgba(0,0,0,0.5);
             padding: 15px;
-            border-radius: 8px;
+            border-radius: 10px;
             margin: 15px 0;
             word-break: break-all;
-            border: 2px dashed #fff;
+            border: 3px dashed #fff;
             color: #fff;
+            text-shadow: none;
+        }
+        
+        /* Credits Screen */
+        .credits {
+            animation: creditsScroll 20s linear;
+        }
+        
+        @keyframes creditsScroll {
+            from { transform: translateY(100vh); }
+            to { transform: translateY(-100%); }
+        }
+        
+        .credits-line {
+            margin: 30px 0;
+            font-size: 16px;
+            color: #ffa500;
+            text-shadow: 3px 3px 0 #000, 0 0 15px rgba(255,165,0,0.8);
+        }
+        
+        .credits-small {
+            font-size: 11px;
+            color: #fff;
+            margin: 10px 0;
+        }
+        
+        .credits-link {
+            color: #00ff88;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .credits-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: fixed;
+            bottom: 200px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.95);
+            color: #ffa500;
+            padding: 12px 25px;
+            border-radius: 12px;
+            border: 3px solid #ff6b00;
+            font-size: 11px;
+            z-index: 150;
+            white-space: nowrap;
+            pointer-events: none;
+            animation: tooltipAnim 3s forwards;
+            box-shadow: 0 0 25px rgba(255,107,0,0.8);
+        }
+        
+        @keyframes tooltipAnim {
+            0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            15%, 85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+        }
+        
+        /* Watermark */
+        .watermark {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 2px solid #ff6b00;
+            font-size: 9px;
+            color: #ff9500;
+            z-index: 99;
+            box-shadow: 0 0 15px rgba(255,107,0,0.5);
         }
         
         .hidden {
             display: none !important;
         }
         
-        .watermark {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.7);
-            padding: 8px 15px;
-            border-radius: 8px;
-            border: 2px solid #ff6b00;
-            font-size: 10px;
-            color: #ff9500;
-            z-index: 99;
-        }
-        
+        /* Responsive */
         @media (max-width: 768px) {
-            .controls {
+            .controls, .btn-action {
                 display: flex;
             }
             .title {
-                font-size: 24px;
+                font-size: 22px;
+            }
+            .subtitle {
+                font-size: 11px;
             }
             .text {
-                font-size: 10px;
+                font-size: 9px;
+            }
+            .hud {
+                font-size: 9px;
+                padding: 10px 14px;
+            }
+            .inv-grid {
+                grid-template-columns: repeat(3, 48px);
+            }
+            .inv-slot {
+                width: 48px;
+                height: 48px;
+                font-size: 24px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .title {
+                font-size: 18px;
+            }
+            .text {
+                font-size: 8px;
             }
         }
     </style>
 </head>
 <body>
-    <div id="game">
+    <div id="gameContainer">
         <canvas id="canvas"></canvas>
         
         <div class="hud">
-            <div class="hud-item">🎃 NÍVEL: <span class="hud-value" id="level">1</span>/5</div>
-            <div class="hud-item">🪙 COLETADOS: <span class="hud-value" id="collected">0</span>/<span id="total">10</span></div>
-            <div class="hud-item">⭐ PONTOS: <span class="hud-value" id="score">0</span></div>
-            <div class="hud-item">⏱️ TEMPO: <span class="hud-value" id="timer">30</span>s</div>
+            🎃 <span class="hud-value" id="pumpkinCount">0</span>/5 Abóboras<br>
+            🔧 <span class="hud-value" id="currentTool">Mãos</span>
+        </div>
+        
+        <div class="inventory">
+            <div class="inv-title">📦 INVENTÁRIO</div>
+            <div class="inv-grid" id="invGrid"></div>
         </div>
         
         <div class="controls">
-            <div class="btn-control" id="btnLeft">◀</div>
-            <div class="btn-control" id="btnRight">▶</div>
+            <div class="dpad">
+                <div class="btn-dpad up" data-dir="up">▲</div>
+                <div class="btn-dpad down" data-dir="down">▼</div>
+                <div class="btn-dpad left" data-dir="left">◀</div>
+                <div class="btn-dpad right" data-dir="right">▶</div>
+            </div>
         </div>
         
-        <div class="watermark">⚡ YORUS GAMES</div>
+        <div class="btn-action" id="btnAction">USAR<br>⚡</div>
+        
+        <div class="watermark">⚡ YORUS</div>
     </div>
     
+    <!-- Start Screen -->
     <div class="overlay" id="startScreen">
         <div class="overlay-content">
-            <div class="title">🎃 PUMPKIN COLLECTOR 🎃</div>
+            <div class="title">🎃 PUMPKIN WEEN 🎃</div>
+            <div class="subtitle">✨ A Halloween Adventure ✨</div>
             <div class="text">
-                <p style="font-size: 16px; color: #ffa500; margin: 20px 0;">🎮 JOGO SIMPLES E DIVERTIDO!</p>
-                <p><strong>COMO JOGAR:</strong></p>
-                <p>🎃 Mova seu personagem para coletar as abóboras</p>
-                <p>⚠️ Desvie dos obstáculos que caem</p>
-                <p>⏱️ Complete antes do tempo acabar</p>
-                <p>🏆 5 níveis cada vez mais rápidos!</p>
+                <p style="font-size: 15px; color: #ffa500; margin: 20px 0;">🗺️ EXPLORE UM MUNDO MÁGICO!</p>
+                
+                <p><strong>🎯 SUA MISSÃO:</strong></p>
+                <p>Encontre as <strong>5 ABÓBORAS MÁGICAS</strong> escondidas pelo mapa!</p>
+                <p>Cada uma está protegida por desafios únicos...</p>
                 <br>
+                
+                <p><strong>⛏️ FERRAMENTAS:</strong></p>
+                <p>🪓 <strong>Machado</strong> - Corte árvores e madeira</p>
+                <p>⛏️ <strong>Picareta</strong> - Quebre pedras e rochas</p>
+                <p>🔑 <strong>Chave</strong> - Abra portas trancadas</p>
+                <br>
+                
                 <p><strong>🎮 CONTROLES:</strong></p>
-                <p>PC: Setas ← → ou A / D</p>
-                <p>Mobile: Botões na tela</p>
+                <p><strong>PC:</strong> Setas ↑↓←→ ou WASD • Espaço/E para usar</p>
+                <p><strong>Mobile:</strong> D-Pad e botão USAR</p>
+                <p>Clique nos itens para equipar</p>
                 <br>
-                <p style="color: #ffa500; font-size: 14px;">Complete os 5 níveis e ganhe uma CAPA OPTIFINE!</p>
+                
+                <p style="color: #00ff88; font-size: 13px; margin-top: 20px;">
+                    ⭐ Complete a missão e ganhe uma <strong>CAPA OPTIFINE</strong>! ⭐
+                </p>
             </div>
-            <button class="btn" onclick="startGame()">🚀 COMEÇAR</button>
+            <button class="btn" onclick="startGame()">🚀 COMEÇAR AVENTURA</button>
         </div>
     </div>
     
-    <div class="overlay hidden" id="levelCompleteScreen">
-        <div class="overlay-content">
-            <div class="title">🎉 NÍVEL COMPLETO! 🎉</div>
-            <div class="text">
-                <p id="levelStats"></p>
-            </div>
-            <button class="btn" onclick="nextLevel()">➡️ PRÓXIMO NÍVEL</button>
-        </div>
-    </div>
-    
-    <div class="overlay hidden" id="gameOverScreen">
-        <div class="overlay-content">
-            <div class="title">⏰ TEMPO ESGOTADO! ⏰</div>
-            <div class="text">
-                <p id="gameOverStats"></p>
-            </div>
-            <button class="btn" onclick="restartGame()">🔄 TENTAR NOVAMENTE</button>
-        </div>
-    </div>
-    
+    <!-- Victory Screen -->
     <div class="overlay hidden" id="victoryScreen">
         <div class="overlay-content">
-            <div class="title">🏆 VOCÊ VENCEU! 🏆</div>
+            <div class="title">🏆 PARABÉNS! 🏆</div>
+            <div class="subtitle">✨ Você completou Pumpkin Ween! ✨</div>
             <div class="text">
-                <p>Parabéns! Você completou todos os 5 níveis!</p>
+                <p style="font-size: 17px; margin: 20px 0; color: #00ff88;">
+                    🎃 Todas as 5 abóboras mágicas foram encontradas! 🎃
+                </p>
+                
                 <div class="cape-box">
-                    <h2 style="font-size: 20px; margin-bottom: 15px;">🎁 SUA CAPA OPTIFINE 🎁</h2>
-                    <p style="font-size: 11px; margin: 10px 0;">Copie seu código exclusivo:</p>
+                    <h2 style="font-size: 20px; margin-bottom: 15px; color: #fff;">
+                        🎁 SUA RECOMPENSA 🎁
+                    </h2>
+                    <p style="font-size: 11px; margin: 10px 0; color: #fff;">
+                        Código exclusivo de Capa Optifine:
+                    </p>
                     <div class="cape-code" id="capeCode">CARREGANDO...</div>
                     <button class="btn" onclick="copyCape()">📋 COPIAR CÓDIGO</button>
-                    <p style="font-size: 10px; margin-top: 10px;">⚠️ Use em https://optifine.net/login</p>
+                    <p style="font-size: 10px; margin-top: 10px; color: #fff;">
+                        ⚠️ Use este código em <strong>optifine.net/cape</strong>
+                    </p>
                 </div>
-                <p id="finalStats"></p>
+                
+                <p style="font-size: 13px; margin-top: 20px;">
+                    Obrigado por jogar! 🎮
+                </p>
             </div>
-            <button class="btn" onclick="restartGame()">🎮 JOGAR NOVAMENTE</button>
+            <button class="btn" onclick="showCredits()">🎬 VER CRÉDITOS</button>
+            <button class="btn" onclick="restartGame()">🔄 JOGAR NOVAMENTE</button>
+        </div>
+    </div>
+    
+    <!-- Credits Screen -->
+    <div class="overlay hidden" id="creditsScreen">
+        <div class="overlay-content" style="background: linear-gradient(180deg, #000000 0%, #1a0033 50%, #2d0052 100%);">
+            <div class="credits">
+                <div class="credits-line" style="font-size: 36px; margin-bottom: 50px;">
+                    🎃 PUMPKIN WEEN 🎃
+                </div>
+                
+                <div class="credits-line" style="margin-top: 80px;">
+                    ═══════════════════
+                </div>
+                
+                <div class="credits-line" style="font-size: 20px; margin: 50px 0;">
+                    CRIADO POR
+                </div>
+                <div class="credits-line" style="font-size: 28px; color: #00ff88;">
+                    VEGOTS
+                </div>
+                
+                <div class="credits-line" style="margin: 80px 0;">
+                    ═══════════════════
+                </div>
+                
+                <div class="credits-line" style="font-size: 18px; margin: 50px 0;">
+                    EMPRESA
+                </div>
+                <div class="credits-line" style="font-size: 26px; color: #ffa500;">
+                    ⚡ YORUS ⚡
+                </div>
+                
+                <div class="credits-line" style="margin: 80px 0;">
+                    ═══════════════════
+                </div>
+                
+                <div class="credits-line" style="font-size: 16px; margin: 40px 0;">
+                    JUNTE-SE À COMUNIDADE
+                </div>
+                <div class="credits-small">
+                    <a href="https://discord.gg/ta6vzcqCum" target="_blank" class="credits-link">
+                        🎮 discord.gg/ta6vzcqCum
+                    </a>
+                </div>
+                
+                <div class="credits-line" style="margin: 100px 0;">
+                    ═══════════════════
+                </div>
+                
+                <div class="credits-line" style="font-size: 14px;">
+                    AGRADECIMENTOS ESPECIAIS
+                </div>
+                <div class="credits-small" style="margin: 30px 0;">
+                    A todos os jogadores que<br>
+                    embarcaram nesta aventura!
+                </div>
+                
+                <div class="credits-line" style="margin: 100px 0;">
+                    ═══════════════════
+                </div>
+                
+                <div class="credits-line" style="font-size: 18px; margin: 50px 0;">
+                    TECNOLOGIAS
+                </div>
+                <div class="credits-small">
+                    HTML5 Canvas<br>
+                    JavaScript<br>
+                    Pixel Art
+                </div>
+                
+                <div class="credits-line" style="margin: 100px 0;">
+                    ═══════════════════
+                </div>
+                
+                <div class="credits-line" style="font-size: 22px; color: #00ff88; margin: 60px 0;">
+                    🎃 FELIZ HALLOWEEN! 🎃
+                </div>
+                
+                <div class="credits-line" style="margin: 80px 0; font-size: 14px;">
+                    © 2025 YORUS
+                </div>
+                
+                <div class="credits-line" style="margin-top: 150px; font-size: 16px;">
+                    ═══════════════════
+                </div>
+                
+                <div class="credits-small" style="margin: 50px 0; font-size: 12px; color: #888;">
+                    Obrigado por jogar!
+                </div>
+            </div>
+            <button class="btn" onclick="closeCredits()" style="margin-top: 50px;">🔙 VOLTAR</button>
         </div>
     </div>
     
@@ -299,532 +655,911 @@
         'use strict';
         
         // ===== SISTEMA DE CAPAS SEQUENCIAL =====
-(function(){
-    const codes=[
-        'a2FtaWwtYnVqYWxza2lAbzIucGw6NzVURTVYVlJISA==',
-        'bGlsc2l4aW5va2M3QGdtYWlsLmNvbTpUQ085N1VRMjdX',
-        'aW94ZGFyazM3Mnl0QGdtYWlsLmNvbTo4SE5UU0Q2MzVF',
-        'Y29udGF0by5zNHp6eEBnbWFpbC5jb206WldMTzJaUlNDQw==',
-        'bWF0MjkubWdAZ21haWwuY29tOkw0TFhYRU1LWEU=',
-        'bWFydGlqbmRvb3JkdWluMjAwN0BnbWFpbC5jb206VlpWUlRJVFpONA==',
-        'YWxjcmFmdDEyQGdtYWlsLmNvbTpOMjBZQVc2NldT',
-        'c2xpbmV3b2xmQGdtYWlsLmNvbTozUlY5UkNXVEpT',
-        'VGhvbWFzX2FuZGVyc2VuMzBAaG90bWFpbC5jb206Nk0xN0s5U1dIQw==',
-        'cGVkcm9iYWlkYWwyMDE0QGhvdG1haWwuY29tOlhXN0NLUVBLOUk=',
-        'amFtZXNodWxnYW5uQGdtYWlsLmNvbTpOQzZSVjlFMTNN',
-        'emVuYS5raGVyYmVjaGVAZ21haWwuY29tOjhIODYyTzlRWTM=',
-        'c2VpZmppZWRAeWFob28uY29tOkkxOUVGSjNMMEE=',
-        'ZnJ1bW9zdTE5OTRAbWFpbC5ydTpFME1KSEVLREU=',
-        'bHVjaWFubjc4NkBHbWFpbC5jb206WUswVUJRUE1MVg==',
-        'ZGlvbi5kb21taXNzZUBnbWFpbC5jb206TU9aNFM2S1lKTg==',
-        'd29qYWtha2FAZ21haWwuY29tOjNXQURWVFVQNDY=',
-        'ZmlsaXBrb2N3aW5AZ21haWwuY29tOlkxOU8xOVhEU0g=',
-        'Y3VucGh1YzEwQGdtYWlsLmNvbTo1SDVFMlNMRVNMOQ==',
-        'Y29sZXlldGhhbkB5YWhvby5jb206UzE2SDRQMzIxTg==',
-        'bG9raWRva2kyNmtvbG9AZ21haWwuY29tOklNUzRQT0YwSDM=',
-        'bHVpemx1aXozenpwQGdtYWlsLmNvbTpZRlk2NUs3SDhX',
-        'c2FtdWVsZ2ZyQGdtYWlsLmNvbTpWOURGT1E0VTNEA==',
-        'ZHJhZ29ua25pZ2h0ODhAaG90bWFpbC5jb206U0pLSlFPRURXVw==',
-        'bG9vbG9zaDc0QGdtYWlsLmNvbTpDN1k2TDFKNkRB',
-        'bHh2aXNobGVvQGdtYWlsLmNvbTpDMU0xNVUxVldT',
-        'eGVuZGVyYWxleF95dEBob3RtYWlsLmNvbTpJNkFTN1NSNzAy',
-        'anVua3MyMDAxQGdtYWlsLmNvbToxQ1EzSTBMMkJC',
-        'aWFtZGFib21iMTVAZ21haWwuY29tOlRDVExOOU1EWjk=',
-        'emlnYS52b2RuanprNEBnbWFpbC5jb206SkE0SjRZMDJDMQ==',
-        'bWV2ZWxhckB5YWhvby5jb206WExDRDNPOU9KUw==',
-        'VmlwM3JmcmFtM0BnbWFpbC5jb206Rlk3STVPMVJYMQ==',
-        'bW1vb25ncmF2ZXNAZ21haWwuY29tOjc4SUVFOUY5RjI=',
-        'YnJhbnF1ZWxvb282OUBnbWFpbC5jb206VkFKTkE2QVY2OA==',
-        'cmV4bHAxMDBAd2ViLmRlOjhOSzlVUTBWVFk=',
-        'YWRyaWFuYS50aW5vY29AYm9sLmNvbS5icjo5ODlSMkhCWk5P',
-        'aXZlcmEzNzIuaXY4M0BnbWFpbC5jb206MkpVRFZFWktVNw==',
-        'Q2hyeXM2N0BsaXZlLml0OkFIQUgzMjZUMzU=',
-        'cmFyYXkxMTlAeWFob28uY28uanA6V0FLMjcyV0Q3Mg==',
-        'ZGFzLmRhbmllbEB0LW9ubGluZS5kZTpXUEU1VlVLMTBN',
-        'cGFyazM0QGdtYWlsLmNvbTo4Q1RDWlZDWFNY',
-        'dmVybzlAYmJveC5mcjpDRVlMTEY3UEE1',
-        'QXJpZWxjYjA3QGdtYWlsLmNvbTpEMzBUMDUyUzVD',
-        'cGFzY2FsZG9yaWFuMTQwNUBnbWFpbC5jb206RVk0N05XTjlRRQ==',
-        'dGVvc2V2ZXJpbmlnaWxtYW50QGdtYWlsLmNvbTo3SVVCSF NTQ1JWTg==',
-        'bWFzc2ltby5hbmdoZWw4MEBpY2xvdWQuY29tOlBFME84Wk1DTTY=',
-        'dml0b3JwNGNvbWJhZG9yQG91dGxvb2suY29tOkRLSVdRRkRKTTU=',
-        'c2FyYXMuYXB1bHNraXNAZ21haWwuY29tOjJEM1hCQTk5NjU=',
-        'bm9haC5tYWNlcmlAZ21haWwuY29tOkhaMFZFTjRDTE4=',
-        'Y29sdG9ua21vc2xleUBnbWFpbC5jb206MjJFMDMwUk5UWQ==',
-        'ZW1pbGlhbm9jb3JuMTAxQGdtYWlsLmNvbTpUWDdWVTNIR1o2',
-        'Y2FtbXl3YW1teTMyd0BnbWFpbC5jb206N0ZSQUtYM05aOA==',
-        'eWlzZTI3MTFAZ21haWwuY29tOjdXU1BQWTZMTlI=',
-        'aHVuMjAxNzA4MTJAZ21haWwuY29tOllZWTJQSTNaU0w=',
-        'd2dvbnphbG8yMkBnbWFpbC5jb206VTg4NFY1U0lISw==',
-        'cmVsb2FkMjA1N0BnbWFpbC5jb206Tko4VDNKT0hBVw==',
-        'Z3Jlc2tvLmFuZHJlajY5QGdtYWlsLmNvbTo4WlZXUVA0UFFQ',
-        'UXVpY2tsZXk4OEBnbWFpbC5jb206RU9aTVJVVTA5Tg==',
-        'a2tzaXBvc0BnbWFpbC5jb206MDNFQlpBNUkyRw==',
-        'bWxhcm9jaGUyMDA1QGdtYWlsLmNvbTo5WUs5Tk1GMVZN',
-        'YWFyb25zaHJzQGdtYWlsLmNvbTpCWUlQN1A2RThD',
-        'S2FyZW52YW5jZTFAaG90bWFpbC5jb206ODhHTFVPSEU1MA==',
-        'cm9jaGFpc2Fkb3JhMzdAZ21haWwuY29tOjU1UkVVRzVHTU4=',
-        'YnJhbTI1MDgwNkBnbWFpbC5jb206ODFJNVBPUVRDTA==',
-        'cmFmYWVsZnNvYnJvc2FAZ21haWwuY29tOk5CMzFWUlcyOEI=',
-        'YWxhbnBhc3RyaWFuMTIzNDU2QGdtYWlsLmNvbTpJRTRDU1A0SEU5',
-        'amtuaWprYW5AZ21haWwuY29tOlhYVzdJMzdPTEE=',
-        'TmVkZXJraXBwaWVAZ21haWwuY29tOlBST1AzS05ZME0=',
-        'YWhsYW1fYV81NTVAaG90bWFpbC5jb206Vk5IUU5LQjNXQw==',
-        'bHVjYXNrZWxsbmVyMDhAeWFob28uY29tOktGUkxLQTA1Q00=',
-        'bmFyb3preTI2LjQuZEBnbWFpbC5jb206T1ZaTUVCVjBZSQ==',
-        'c3VwZXJwb2xhcjQ1MkBnbWFpbC5jb206QU0yNFpVQ05BNQ==',
-        'dGltQGl0ZWFjaGVtLmNvbTo2OVlFUThIUDNK',
-        'cHdpbGRlbjIzQGdtYWlsLmNvbToyT0dNQVk5OUlD',
-        'YnJhbmRvbm1odXluaEBnbWFpbC5jb206VTFaNDZWV1JZUA==',
-        'YWxpbi5jb3NtZWxlYXRhQGdtYWlsLmNvbTpYVkk5NjRZNTZG',
-        'cGF0YW1vc2h0YTk3QGdtYWlsLmNvbTpXMTBCV0pBUFhF',
-        'amhsZWU4NTYyQGdtYWlsLmNvbTpSMlc4N0NPMzJY',
-        'bGlrZWRmb3J0bml0ZUB3ZWIuZGU6Q0tES1FKQzFPNQ==',
-        'aWRhbmllbC5pbGFib3lAZ21haWwuY29tOjdYVVo4ODhET0g=',
-        'Y2hpbGVhbmNqbUBnbWFpbC5jb206U1FEMkRLNlU0Qw==',
-        'bG91aXNoYWdzcGllbDVAZ21haWwuY29tOlNWWEdCUVlUMlc=',
-        'cm9iZXJ0b2QxNHVAZ21haWwuY29tOlpFVzRPWUFYUEw=',
-        'bWhhY2tldHQyM0BnbWFpbC5jb206WU5PQk9SRzlOTg==',
-        'dHJra2ViYWJAZ21haWwuY29tOjYzMU81N044V00=',
-        'anVhbi5jYW1pbG8uMjcubGV5dG9uQGdtYWlsLmNvbTpCM1hVUVlWS0xG',
-        'ZGVzdGlsbGFidXNpbmVzc0BnbWFpbC5jb206VVBSVDdBTzVZQg==',
-        'bHJvZWhtQG5jLnJyLmNvbTpDTE8zSVZGQTkx',
-        'bW9oYW1lZDZuYXNAZ21haWwuY29tOktXQ1pCV0pFN0Y=',
-        'ZGJsdW1lbmFAeWFob28uY29tOk9STDRXSUVRRDU=',
-        'a3VraWthcmVva0BnbWFpbC5jb206M0tNSEVFUk9HSA==',
-        'YW5kcmV3bGVvcmljaEBpY2xvdWQuY29tOllFUUpBOTQwV04=',
-        'c3dlZWt6eUBnbWFpbC5jb206M0xIN1FLM1ZVSg==',
-        'dmlwZWdpNDcwM0ByZWx1bXl4LmNvbTpIRjMwR1BJQVo4',
-        'ZGF2aWRkZzc3Ny5kZzg1QGdtYWlsLmNvbTpHQUVOUFdGNU01',
-        'Z2FuY2E5ODVAZ21haWwuY29tOlRSSlpNVldMMDg=',
-        'UGF0cmlrLnZhY3VsaW5vQGdtYWlsLmNvbTo3TTlFM1NFN1Ex'
-    ];
-    
-    // Sistema sequencial usando localStorage
-    window._getCape = function() {
-        let index = parseInt(localStorage.getItem('_capeIndex') || '0');
-        const cape = atob(codes[index]);
+        (function(){
+            const codes=[
+                'a2FtaWwtYnVqYWxza2lAbzIucGw6NzVURTVYVlJISA==',
+                'bGlsc2l4aW5va2M3QGdtYWlsLmNvbTpUQ085N1VRMjdX',
+                'aW94ZGFyazM3Mnl0QGdtYWlsLmNvbTo4SE5UU0Q2MzVF',
+                'Y29udGF0by5zNHp6eEBnbWFpbC5jb206WldMTzJaUlNDQw==',
+                'bWF0MjkubWdAZ21haWwuY29tOkw0TFhYRU1LWEU=',
+                'bWFydGlqbmRvb3JkdWluMjAwN0BnbWFpbC5jb206VlpWUlRJVFpONA==',
+                'YWxjcmFmdDEyQGdtYWlsLmNvbTpOMjBZQVc2NldT',
+                'c2xpbmV3b2xmQGdtYWlsLmNvbTozUlY5UkNXVEpT',
+                'VGhvbWFzX2FuZGVyc2VuMzBAaG90bWFpbC5jb206Nk0xN0s5U1dIQw==',
+                'cGVkcm9iYWlkYWwyMDE0QGhvdG1haWwuY29tOlhXN0NLUVBLOUk=',
+                'amFtZXNodWxnYW5uQGdtYWlsLmNvbTpOQzZSVjlFMTNN',
+                'emVuYS5raGVyYmVjaGVAZ21haWwuY29tOjhIODYyTzlRWTM=',
+                'c2VpZmppZWRAeWFob28uY29tOkkxOUVGSjNMMEE=',
+                'ZnJ1bW9zdTE5OTRAbWFpbC5ydTpFME1KSEVLREU=',
+                'bHVjaWFubjc4NkBHbWFpbC5jb206WUswVUJRUE1MVg==',
+                'ZGlvbi5kb21taXNzZUBnbWFpbC5jb206TU9aNFM2S1lKTg==',
+                'd29qYWtha2FAZ21haWwuY29tOjNXQURWVFVQNDY=',
+                'ZmlsaXBrb2N3aW5AZ21haWwuY29tOlkxOU8xOVhEU0g=',
+                'Y3VucGh1YzEwQGdtYWlsLmNvbTo1SDVFMlNMRVNMOQ==',
+                'Y29sZXlldGhhbkB5YWhvby5jb206UzE2SDRQMzIxTg==',
+                'bG9raWRva2kyNmtvbG9AZ21haWwuY29tOklNUzRQT0YwSDM=',
+                'bHVpemx1aXozenpwQGdtYWlsLmNvbTpZRlk2NUs3SDhX',
+                'c2FtdWVsZ2ZyQGdtYWlsLmNvbTpWOURGT1E0VTNEA==',
+                'ZHJhZ29ua25pZ2h0ODhAaG90bWFpbC5jb206U0pLSlFPRURXVw==',
+                'bG9vbG9zaDc0QGdtYWlsLmNvbTpDN1k2TDFKNkRB',
+                'bHh2aXNobGVvQGdtYWlsLmNvbTpDMU0xNVUxVldT',
+                'eGVuZGVyYWxleF95dEBob3RtYWlsLmNvbTpJNkFTN1NSNzAy',
+                'anVua3MyMDAxQGdtYWlsLmNvbToxQ1EzSTBMMkJC',
+                'aWFtZGFib21iMTVAZ21haWwuY29tOlRDVExOOU1EWjk=',
+                'emlnYS52b2RuanprNEBnbWFpbC5jb206SkE0SjRZMDJDMQ==',
+                'bWV2ZWxhckB5YWhvby5jb206WExDRDNPOU9KUw==',
+                'VmlwM3JmcmFtM0BnbWFpbC5jb206Rlk3STVPMVJYMQ==',
+                'bW1vb25ncmF2ZXNAZ21haWwuY29tOjc4SUVFOUY5RjI=',
+                'YnJhbnF1ZWxvb282OUBnbWFpbC5jb206VkFKTkE2QVY2OA==',
+                'cmV4bHAxMDBAd2ViLmRlOjhOSzlVUTBWVFk=',
+                'YWRyaWFuYS50aW5vY29AYm9sLmNvbS5icjo5ODlSMkhCWk5P',
+                'aXZlcmEzNzIuaXY4M0BnbWFpbC5jb206MkpVRFZFWktVNw==',
+                'Q2hyeXM2N0BsaXZlLml0OkFIQUgzMjZUMzU=',
+                'cmFyYXkxMTlAeWFob28uY28uanA6V0FLMjcyV0Q3Mg==',
+                'ZGFzLmRhbmllbEB0LW9ubGluZS5kZTpXUEU1VlVLMTBN',
+                'cGFyazM0QGdtYWlsLmNvbTo4Q1RDWlZDWFNY',
+                'dmVybzlAYmJveC5mcjpDRVlMTEY3UEE1',
+                'QXJpZWxjYjA3QGdtYWlsLmNvbTpEMzBUMDUyUzVD',
+                'cGFzY2FsZG9yaWFuMTQwNUBnbWFpbC5jb206RVk0N05XTjlRRQ==',
+                'dGVvc2V2ZXJpbmlnaWxtYW50QGdtYWlsLmNvbTo3SVVCSFNTU1JWTg==',
+                'bWFzc2ltby5hbmdoZWw4MEBpY2xvdWQuY29tOlBFME84Wk1DTTY=',
+                'dml0b3JwNGNvbWJhZG9yQG91dGxvb2suY29tOkRLSVdRRkRKTTU=',
+                'c2FyYXMuYXB1bHNraXNAZ21haWwuY29tOjJEM1hCQTk5NjU=',
+                'bm9haC5tYWNlcmlAZ21haWwuY29tOkhaMFZFTjRDTE4=',
+                'Y29sdG9ua21vc2xleUBnbWFpbC5jb206MjJFMDMwUk5UWQ==',
+                'ZW1pbGlhbm9jb3JuMTAxQGdtYWlsLmNvbTpUWDdWVTNIR1o2',
+                'Y2FtbXl3YW1teTMyd0BnbWFpbC5jb206N0ZSQUtYM05aOA==',
+                'eWlzZTI3MTFAZ21haWwuY29tOjdXU1BQWTZMTlI=',
+                'aHVuMjAxNzA4MTJAZ21haWwuY29tOllZWTJQSTNaU0w=',
+                'd2dvbnphbG8yMkBnbWFpbC5jb206VTg4NFY1U0lISw==',
+                'cmVsb2FkMjA1N0BnbWFpbC5jb206Tko4VDNKT0hBVw==',
+                'Z3Jlc2tvLmFuZHJlajY5QGdtYWlsLmNvbTo4WlZXUVA0UFFQ',
+                'UXVpY2tsZXk4OEBnbWFpbC5jb206RU9aTVJVVTA5Tg==',
+                'a2tzaXBvc0BnbWFpbC5jb206MDNFQlpBNUkyRw==',
+                'bWxhcm9jaGUyMDA1QGdtYWlsLmNvbTo5WUs5Tk1GMVZN',
+                'YWFyb25zaHJzQGdtYWlsLmNvbTpCWUlQN1A2RThD',
+                'S2FyZW52YW5jZTFAaG90bWFpbC5jb206ODhHTFVPSEU1MA==',
+                'cm9jaGFpc2Fkb3JhMzdAZ21haWwuY29tOjU1UkVVRzVHTU4=',
+                'YnJhbTI1MDgwNkBnbWFpbC5jb206ODFJNVBPUVRDTA==',
+                'cmFmYWVsZnNvYnJvc2FAZ21haWwuY29tOk5CMzFWUlcyOEI=',
+                'YWxhbnBhc3RyaWFuMTIzNDU2QGdtYWlsLmNvbTpJRTRDU1A0SEU5',
+                'amtuaWprYW5AZ21haWwuY29tOlhYVzdJMzdPTEE=',
+                'TmVkZXJraXBwaWVAZ21haWwuY29tOlBST1AzS05ZME0=',
+                'YWhsYW1fYV81NTVAaG90bWFpbC5jb206Vk5IUU5LQjNXQw==',
+                'bHVjYXNrZWxsbmVyMDhAeWFob28uY29tOktGUkxLQTA1Q00=',
+                'bmFyb3preTI2LjQuZEBnbWFpbC5jb206T1ZaTUVCVjBZSQ==',
+                'c3VwZXJwb2xhcjQ1MkBnbWFpbC5jb206QU0yNFpVQ05BNQ==',
+                'dGltQGl0ZWFjaGVtLmNvbTo2OVlFUThIUDNK',
+                'cHdpbGRlbjIzQGdtYWlsLmNvbToyT0dNQVk5OUlD',
+                'YnJhbmRvbm1odXluaEBnbWFpbC5jb206VTFaNDZWV1JZUA==',
+                'YWxpbi5jb3NtZWxlYXRhQGdtYWlsLmNvbTpYVkk5NjRZNTZG',
+                'cGF0YW1vc2h0YTk3QGdtYWlsLmNvbTpXMTBCV0pBUFhF',
+                'amhsZWU4NTYyQGdtYWlsLmNvbTpSMlc4N0NPMzJY',
+                'bGlrZWRmb3J0bml0ZUB3ZWIuZGU6Q0tES1FKQzFPNQ==',
+                'aWRhbmllbC5pbGFib3lAZ21haWwuY29tOjdYVVo4ODhET0g=',
+                'Y2hpbGVhbmNqbUBnbWFpbC5jb206U1FEMkRLNlU0Qw==',
+                'bG91aXNoYWdzcGllbDVAZ21haWwuY29tOlNWWEdCUVlUMlc=',
+                'cm9iZXJ0b2QxNHVAZ21haWwuY29tOlpFVzRPWUFYUEw=',
+                'bWhhY2tldHQyM0BnbWFpbC5jb206WU5PQk9SRzlOTg==',
+                'dHJra2ViYWJAZ21haWwuY29tOjYzMU81N044V00=',
+                'anVhbi5jYW1pbG8uMjcubGV5dG9uQGdtYWlsLmNvbTpCM1hVUVlWS0xG',
+                'ZGVzdGlsbGFidXNpbmVzc0BnbWFpbC5jb206VVBSVDdBTzVZQg==',
+                'bHJvZWhtQG5jLnJyLmNvbTpDTE8zSVZGQTkx',
+                'bW9oYW1lZDZuYXNAZ21haWwuY29tOktXQ1pCV0pFN0Y=',
+                'ZGJsdW1lbkB5YWhvby5jb206T1JMNFRXSUVRRDU=',
+                'a3VraWthcmVva0BnbWFpbC5jb206M0tNSEVFUk9HSA==',
+                'YW5kcmV3bGVvcmljaEBpY2xvdWQuY29tOllFUUpBOTQwV04=',
+                'c3dlZWt6eUBnbWFpbC5jb206M0xIN1FLM1ZVSg==',
+                'dmlwZWdpNDcwM0ByZWx1bXl4LmNvbTpIRjMwR1BJQVo4',
+                'ZGF2aWRkZzc3Ny5kZzg1QGdtYWlsLmNvbTpHQUVOUFdGNU01',
+                'Z2FuY2E5ODVAZ21haWwuY29tOlRSSlpNVldMMDg=',
+                'UGF0cmlrLnZhY3VsaW5vQGdtYWlsLmNvbTo3TTlFM1NFN1Ex'
+            ];
+            
+            window._getCape = function() {
+                let index = parseInt(localStorage.getItem('_capeIndex') || '0');
+                const cape = atob(codes[index]);
+                index = (index + 1) % codes.length;
+                localStorage.setItem('_capeIndex', index.toString());
+                return cape;
+            };
+            
+            document.addEventListener('contextmenu', e => e.preventDefault());
+            document.addEventListener('keydown', e => {
+                if(e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 73)) e.preventDefault();
+            });
+        })();
         
-        // Incrementar para próximo jogador
-        index = (index + 1) % codes.length;
-        localStorage.setItem('_capeIndex', index.toString());
-        
-        return cape;
-    };
-    
-    // Proteção básica
-    document.addEventListener('contextmenu', e => e.preventDefault());
-    document.addEventListener('keydown', e => {
-        if(e.keyCode === 123 || (e.ctrlKey && e.shiftKey)) e.preventDefault();
-    });
-})();
-        
-        // Setup Canvas
+        // ===== GAME SETUP =====
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        let W, H;
         
-        function resize() {
-            W = canvas.width = window.innerWidth;
-            H = canvas.height = window.innerHeight;
+        // Configuração de tela cheia responsiva
+        let TILE_SIZE = 32;
+        let VIEWPORT_WIDTH = 20;
+        let VIEWPORT_HEIGHT = 15;
+        let CANVAS_WIDTH, CANVAS_HEIGHT;
+        
+        function resizeCanvas() {
+            const maxWidth = window.innerWidth;
+            const maxHeight = window.innerHeight;
+            const aspectRatio = VIEWPORT_WIDTH / VIEWPORT_HEIGHT;
+            
+            if (maxWidth / maxHeight > aspectRatio) {
+                CANVAS_HEIGHT = maxHeight;
+                CANVAS_WIDTH = CANVAS_HEIGHT * aspectRatio;
+            } else {
+                CANVAS_WIDTH = maxWidth;
+                CANVAS_HEIGHT = CANVAS_WIDTH / aspectRatio;
+            }
+            
+            canvas.width = VIEWPORT_WIDTH * TILE_SIZE;
+            canvas.height = VIEWPORT_HEIGHT * TILE_SIZE;
+            canvas.style.width = CANVAS_WIDTH + 'px';
+            canvas.style.height = CANVAS_HEIGHT + 'px';
         }
-        resize();
-        window.addEventListener('resize', resize);
         
-        // Game State
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // ===== GAME STATE =====
         const game = {
-            state: 'menu',
-            level: 1,
-            score: 0,
-            collected: 0,
-            needed: 10,
-            timer: 30,
-            lastTime: 0,
-            keys: {},
-            touch: {left: false, right: false}
+    state: 'menu',
+    pumpkinsFound: 0,
+    currentTool: null,
+    keys: {},
+    touch: {up: false, down: false, left: false, right: false},
+    camera: {x: 0, y: 0},
+    showTooltip: null,
+    lastBlockMessage: 0  // ADICIONE ESTA LINHA
+};
+        
+        // ===== MAPA DO MUNDO =====
+        const TILES = {
+            GRASS: 0,
+            WATER: 1,
+            SAND: 2,
+            STONE: 3,
+            TREE: 4,
+            ROCK: 5,
+            WOOD: 6,
+            CAVE: 7,
+            DOOR: 8,
+            FENCE: 9,
+            HOUSE: 10
         };
         
-        // Player
+        // Mapa 40x30 tiles
+const worldMap = [
+    [1,1,1,1,1,1,1,1,1,1,2,2,0,0,0,4,0,0,0,0,0,0,4,0,0,0,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+    [1,1,1,1,1,1,1,1,1,2,2,2,0,0,4,4,4,0,0,0,0,0,0,0,0,0,3,3,3,3,3,5,3,3,5,3,3,3,3,3],
+    [1,1,1,1,1,1,1,1,2,2,2,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,3,3,3,3,3,5,3,3,3],
+    [1,1,1,1,1,1,1,2,2,2,0,0,0,0,0,0,0,0,0,9,9,9,9,0,0,0,3,3,3,3,3,7,3,3,3,3,3,3,3,3],
+    [1,1,1,1,1,1,2,2,2,0,0,0,0,0,0,0,0,0,0,9,0,0,9,0,0,0,3,3,5,3,3,3,3,3,5,3,3,3,3,3],
+    [1,1,1,1,1,2,2,0,0,0,0,4,0,0,0,0,0,0,0,9,0,0,9,0,0,0,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+    [1,1,1,1,2,2,0,0,0,0,0,0,0,0,4,0,0,0,0,9,9,8,9,0,0,0,0,3,3,3,3,3,3,3,3,3,3,3,3,3],
+    [1,1,1,2,2,0,0,0,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,3,3,3,3,3],
+    [1,1,2,2,0,0,0,0,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,3,3],
+    [1,2,2,0,0,0,0,0,0,4,0,0,0,0,0,6,6,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3],
+    [2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,6,6,0,0,0,0,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3],
+    [2,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,0,3],
+    [0,0,0,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,4,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,5,5,0,0,0,0,0,4,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,4,0,0,0],
+    [4,0,0,0,0,0,0,6,6,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0],
+    [4,4,0,0,0,0,0,6,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,4,4,4,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,5,0,0,0],
+    [0,0,0,0,6,0,0,0,0,0,0,0,4,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,0],
+    [0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,6,6,0,0,0,0,0,0,0,0,0,0,5,0,0],
+    [0,0,4,0,0,0,0,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,6,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,4,4,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0],
+    [0,0,4,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,4,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,0,0,0,0,0,6,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+];
+        
+        const MAP_WIDTH = worldMap[0].length;
+        const MAP_HEIGHT = worldMap.length;
+        
+        // ===== PLAYER =====
         const player = {
-            x: W / 2,
-            y: H - 120,
-            w: 60,
-            h: 60,
-            speed: 8
+            x: 5,
+            y: 10,
+            speed: 0.08,  // REDUZIDO de 0.15 para 0.08 (mais lento)
+            inventory: []
         };
         
-        // Arrays
-        let pumpkins = [];
-        let obstacles = [];
-        let particles = [];
+        // ===== ITEMS & PUMPKINS =====
+const items = [
+    {x: 17, y: 8, type: 'axe', emoji: '🪓', collected: false, name: 'Machado'},
+    {x: 26, y: 2, type: 'pickaxe', emoji: '⛏️', collected: false, name: 'Picareta'},
+    {x: 7, y: 16, type: 'key', emoji: '🔑', collected: false, name: 'Chave'},
+];
+
+const pumpkins = [
+    {x: 21, y: 4, collected: false, requires: 'key', name: 'Abóbora da Casa'},
+    {x: 31, y: 3, collected: false, requires: 'pickaxe', name: 'Abóbora da Caverna'},
+    {x: 4, y: 12, collected: false, requires: 'axe', name: 'Abóbora da Floresta'},
+    {x: 26, y: 24, collected: false, requires: null, name: 'Abóbora Escondida'},
+    {x: 3, y: 8, collected: false, requires: null, name: 'Abóbora da Praia'}
+];
         
-        // Classes
-        class Pumpkin {
-            constructor() {
-                this.x = Math.random() * (W - 40);
-                this.y = -40;
-                this.w = 40;
-                this.h = 40;
-                this.speed = 2 + game.level * 0.5;
-                this.collected = false;
-            }
+        // ===== COLLISION SYSTEM =====
+        const solidTiles = [TILES.STONE, TILES.TREE, TILES.ROCK, TILES.WOOD, TILES.CAVE, TILES.DOOR, TILES.FENCE, TILES.HOUSE];
+// REMOVIDO TILES.WATER - agora pode entrar na água
+        function getTile(x, y) {
+            const col = Math.floor(x);
+            const row = Math.floor(y);
+            if (row < 0 || row >= MAP_HEIGHT || col < 0 || col >= MAP_WIDTH) return TILES.STONE;
+            return worldMap[row][col];
+        }
+        
+        function canMove(x, y) {
+    // Verificar 4 cantos do player
+    const margin = 0.15;
+    const corners = [
+        {x: x + margin, y: y + margin},
+        {x: x + 0.85, y: y + margin},
+        {x: x + margin, y: y + 0.85},
+        {x: x + 0.85, y: y + 0.85}
+    ];
+    
+    for (let corner of corners) {
+        const tile = getTile(corner.x, corner.y);
+        
+        // Verificar cada tipo de tile sólido
+        if (tile === TILES.WOOD) return false;
+        if (tile === TILES.FENCE) return false;
+        if (tile === TILES.HOUSE) return false;
+        
+        // STONE (montanha) - só passa se tiver picareta
+        if (tile === TILES.STONE) {
+            if (!hasItem('pickaxe')) return false;
+        }
+        
+        // Pedra - só passa se tiver picareta
+        if (tile === TILES.ROCK) {
+            if (!hasItem('pickaxe')) return false;
+        }
+        
+        // Árvore - só passa se tiver machado
+        if (tile === TILES.TREE) {
+            if (!hasItem('axe')) return false;
+        }
+        
+        // Porta - só passa se tiver chave
+        if (tile === TILES.DOOR) {
+            if (!hasItem('key')) return false;
+        }
+        
+        // Caverna - só passa se tiver picareta
+        if (tile === TILES.CAVE) {
+            if (!hasItem('pickaxe')) return false;
+        }
+    }
+    return true;
+}
+        
+        // ===== INVENTORY SYSTEM =====
+        function hasItem(type) {
+            return player.inventory.some(item => item.type === type);
+        }
+        
+        function addItem(item) {
+            player.inventory.push(item);
+            renderInventory();
+            showTooltip(`Coletou: ${item.name}!`);
+        }
+        
+        function selectTool(index) {
+    if (index < player.inventory.length) {
+        game.currentTool = player.inventory[index];
+        document.getElementById('currentTool').textContent = game.currentTool.name;
+        renderInventory();
+        
+        // Feedback ao equipar
+        const messages = {
+            'axe': '🪓 Machado equipado! Agora pode cortar árvores!',
+            'pickaxe': '⛏️ Picareta equipada! Agora pode quebrar pedras e entrar em cavernas!',
+            'key': '🔑 Chave equipada! Agora pode abrir portas!'
+        };
+        showTooltip(messages[game.currentTool.type] || `${game.currentTool.name} equipado!`);
+    }
+}
+        
+        function renderInventory() {
+            const grid = document.getElementById('invGrid');
+            grid.innerHTML = '';
             
-            update() {
-                this.y += this.speed;
+            for (let i = 0; i < 6; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'inv-slot';
                 
-                // Colisão com player
-                if (!this.collected && 
-                    this.x < player.x + player.w &&
-                    this.x + this.w > player.x &&
-                    this.y < player.y + player.h &&
-                    this.y + this.h > player.y) {
-                    this.collected = true;
-                    game.collected++;
-                    game.score += 100 * game.level;
-                    makeParticles(this.x + 20, this.y + 20, '#ff6b00');
-                    updateHUD();
+                if (i < player.inventory.length) {
+                    const item = player.inventory[i];
+                    slot.classList.add('has-item');
+                    slot.textContent = item.emoji;
+                    slot.onclick = () => selectTool(i);
+                    
+                    if (game.currentTool && game.currentTool.type === item.type) {
+                        slot.classList.add('selected');
+                    }
                 }
                 
-                return this.y < H + 50;
+                grid.appendChild(slot);
             }
+        }
+        
+        // ===== DRAWING FUNCTIONS =====
+        function drawTile(tile, x, y) {
+            const px = x * TILE_SIZE;
+            const py = y * TILE_SIZE;
             
-            draw() {
-                if (this.collected) return;
-                
-                // Abóbora
-                ctx.fillStyle = '#ff6b00';
-                ctx.beginPath();
-                ctx.arc(this.x + 20, this.y + 20, 18, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Olhos
-                ctx.fillStyle = '#000';
-                ctx.beginPath();
-                ctx.moveTo(this.x + 10, this.y + 15);
-                ctx.lineTo(this.x + 15, this.y + 20);
-                ctx.lineTo(this.x + 10, this.y + 20);
-                ctx.fill();
-                
-                ctx.beginPath();
-                ctx.moveTo(this.x + 30, this.y + 15);
-                ctx.lineTo(this.x + 25, this.y + 20);
-                ctx.lineTo(this.x + 30, this.y + 20);
-                ctx.fill();
-                
-                // Boca
-                ctx.beginPath();
-                ctx.arc(this.x + 20, this.y + 25, 8, 0, Math.PI);
-                ctx.fill();
-                
-                // Talo
-                ctx.fillStyle = '#2d5016';
-                ctx.fillRect(this.x + 17, this.y + 2, 6, 8);
+            switch(tile) {
+                case TILES.GRASS:
+                    ctx.fillStyle = '#4a7c3b';
+                    ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+                    // Detalhes de grama
+                    ctx.fillStyle = '#5a8c4b';
+                    for (let i = 0; i < 3; i++) {
+                        ctx.fillRect(px + (i * 10) + 2, py + 20, 2, 4);
+                    }
+                    break;
+                    
+                case TILES.WATER:
+                    ctx.fillStyle = '#4a90e2';
+                    ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+                    // Ondas
+                    ctx.fillStyle = '#6ab0ff';
+                    ctx.fillRect(px + 4, py + 8, 8, 2);
+                    ctx.fillRect(px + 18, py + 16, 8, 2);
+                    break;
+                    
+                case TILES.SAND:
+                    ctx.fillStyle = '#e8d4a0';
+                    ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+                    // Textura
+                    ctx.fillStyle = '#d4c090';
+                    ctx.fillRect(px + 8, py + 8, 2, 2);
+                    ctx.fillRect(px + 20, py + 16, 2, 2);
+                    break;
+                    
+                case TILES.STONE:
+                    ctx.fillStyle = '#6b6b6b';
+                    ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+                    // Detalhes
+                    ctx.fillStyle = '#555';
+                    ctx.fillRect(px + 4, py + 4, 10, 10);
+                    ctx.fillRect(px + 18, py + 14, 8, 8);
+                    break;
+                    
+                case TILES.TREE:
+                    // Base de grama
+                    ctx.fillStyle = '#4a7c3b';
+                    ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+                    // Tronco
+                    ctx.fillStyle = '#6b4423';
+                    ctx.fillRect(px + 12, py + 16, 8, 16);
+                    // Copa
+                    ctx.fillStyle = '#2d5016';
+                    ctx.beginPath();
+                    ctx.arc(px + 16, py + 14, 12, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#3a6020';
+                    ctx.beginPath();
+                    ctx.arc(px + 16, py + 12, 8, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                    
+                case TILES.ROCK:
+                    // Base de grama
+                    ctx.fillStyle = '#4a7c3b';
+                    ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+                    // Pedra
+                    ctx.fillStyle = '#8b8b8b';
+                    ctx.fillRect(px + 8, py + 12, 16, 14);
+                    ctx.fillStyle = '#a0a0a0';
+                    ctx.fillRect(px + 10, py + 14, 8, 8);
+                    break;
+                    
+                case TILES.WOOD:
+                    // Base de grama
+                    ctx.fillStyle = '#4a7c3b';
+                    ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+                    // Madeira empilhada
+                    ctx.fillStyle = '#6b4423';
+                    ctx.fillRect(px + 6, py + 14, 20, 8);
+                    ctx.fillRect(px + 6, py + 20, 20, 8);
+                    ctx.fillStyle = '#8b5a33';
+                    ctx.fillRect(px + 8, py + 16, 4, 4);
+                    ctx.fillRect(px + 20, py + 22, 4, 4);
+                    break;
+                    
+                case TILES.CAVE:
+                    // Montanha
+                    ctx.fillStyle = '#5a5a5a';
+                    ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+                    ctx.fillStyle = '#4a4a4a';
+                    ctx.fillRect(px + 4, py + 4, 24, 24);
+                    // Entrada da caverna
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.beginPath();
+                    ctx.arc(px + 16, py + 20, 8, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                    
+                case TILES.DOOR:
+    // Base de grama
+    ctx.fillStyle = '#4a7c3b';
+    ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+    // Porta
+    ctx.fillStyle = '#6b4423';
+    ctx.fillRect(px + 10, py + 8, 12, 20);
+    ctx.fillStyle = '#ffd700';
+    ctx.fillRect(px + 18, py + 18, 2, 2);
+    // Cadeado - mais visível
+    if (!hasItem('key')) {
+        ctx.fillStyle = '#ff0000';
+        ctx.fillRect(px + 13, py + 14, 6, 8);
+        ctx.fillStyle = '#cc0000';
+        ctx.beginPath();
+        ctx.arc(px + 16, py + 15, 3, Math.PI, 0, true);
+        ctx.stroke();
+    } else {
+        // Porta aberta
+        ctx.fillStyle = '#00ff00';
+        ctx.fillRect(px + 18, py + 16, 3, 3);
+    }
+    break;
+                    
+                case TILES.FENCE:
+                    // Base de grama
+                    ctx.fillStyle = '#4a7c3b';
+                    ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+                    // Cerca
+                    ctx.fillStyle = '#8b6914';
+                    ctx.fillRect(px + 4, py + 12, 2, 12);
+                    ctx.fillRect(px + 14, py + 12, 2, 12);
+                    ctx.fillRect(px + 24, py + 12, 2, 12);
+                    ctx.fillRect(px + 2, py + 16, 28, 2);
+                    ctx.fillRect(px + 2, py + 20, 28, 2);
+                    break;
+                    
+                case TILES.HOUSE:
+                    // Parede
+                    ctx.fillStyle = '#8b7355';
+                    ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+                    // Janela
+                    ctx.fillStyle = '#6ab0ff';
+                    ctx.fillRect(px + 8, py + 8, 8, 8);
+                    ctx.fillStyle = '#4a90e2';
+                    ctx.fillRect(px + 11, py + 8, 2, 8);
+                    ctx.fillRect(px + 8, py + 11, 8, 2);
+                    // Detalhe
+                    ctx.fillStyle = '#6b5435';
+                    ctx.fillRect(px, py, TILE_SIZE, 4);
+                    break;
             }
         }
         
-        class Obstacle {
-            constructor() {
-                this.x = Math.random() * (W - 50);
-                this.y = -50;
-                this.w = 50;
-                this.h = 50;
-                this.speed = 3 + game.level * 0.7;
-                this.hit = false;
-            }
-            
-            update() {
-                this.y += this.speed;
-                
-                // Colisão com player
-                if (!this.hit &&
-                    this.x < player.x + player.w &&
-                    this.x + this.w > player.x &&
-                    this.y < player.y + player.h &&
-                    this.y + this.h > player.y) {
-                    this.hit = true;
-                    game.score = Math.max(0, game.score - 50);
-                    makeParticles(this.x + 25, this.y + 25, '#9932CC');
-                    updateHUD();
-                }
-                
-                return this.y < H + 50;
-            }
-            
-            draw() {
-                // Fantasma roxo
-                ctx.fillStyle = '#9932CC';
-                ctx.globalAlpha = this.hit ? 0.3 : 1;
-                
-                ctx.beginPath();
-                ctx.arc(this.x + 25, this.y + 20, 20, Math.PI, 0);
-                ctx.lineTo(this.x + 45, this.y + 50);
-                ctx.lineTo(this.x + 37, this.y + 43);
-                ctx.lineTo(this.x + 30, this.y + 50);
-                ctx.lineTo(this.x + 20, this.y + 43);
-                ctx.lineTo(this.x + 13, this.y + 50);
-                ctx.lineTo(this.x + 5, this.y + 43);
-                ctx.closePath();
-                ctx.fill();
-                
-                // Olhos
-                ctx.fillStyle = '#fff';
-                ctx.beginPath();
-                ctx.arc(this.x + 17, this.y + 20, 5, 0, Math.PI * 2);
-                ctx.arc(this.x + 33, this.y + 20, 5, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.fillStyle = '#000';
-                ctx.beginPath();
-                ctx.arc(this.x + 18, this.y + 21, 3, 0, Math.PI * 2);
-                ctx.arc(this.x + 34, this.y + 21, 3, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.globalAlpha = 1;
-            }
-        }
-        
-        class Particle {
-            constructor(x, y, color) {
-                this.x = x;
-                this.y = y;
-                this.vx = (Math.random() - 0.5) * 6;
-                this.vy = (Math.random() - 0.5) * 6 - 2;
-                this.life = 1;
-                this.color = color;
-                this.size = Math.random() * 6 + 2;
-            }
-            
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.vy += 0.2;
-                this.life -= 0.02;
-                return this.life > 0;
-            }
-            
-            draw() {
-                ctx.save();
-                ctx.globalAlpha = this.life;
-                ctx.fillStyle = this.color;
-                ctx.fillRect(this.x, this.y, this.size, this.size);
-                ctx.restore();
-            }
-        }
-        
-        // Functions
-        function makeParticles(x, y, color) {
-            for (let i = 0; i < 10; i++) {
-                particles.push(new Particle(x, y, color));
-            }
-        }
-        
-        function updateHUD() {
-            document.getElementById('level').textContent = game.level;
-            document.getElementById('collected').textContent = game.collected;
-            document.getElementById('total').textContent = game.needed;
-            document.getElementById('score').textContent = game.score;
-        }
-        
-        function spawnPumpkin() {
-            if (game.state !== 'playing') return;
-            pumpkins.push(new Pumpkin());
-            setTimeout(spawnPumpkin, 1000 - game.level * 100);
-        }
-        
-        function spawnObstacle() {
-            if (game.state !== 'playing') return;
-            obstacles.push(new Obstacle());
-            setTimeout(spawnObstacle, 1500 - game.level * 150);
-        }
-        
-        function updatePlayer() {
-            if (game.keys.ArrowLeft || game.keys.a || game.touch.left) {
-                player.x -= player.speed;
-            }
-            if (game.keys.ArrowRight || game.keys.d || game.touch.right) {
-                player.x += player.speed;
-            }
-            
-            player.x = Math.max(0, Math.min(W - player.w, player.x));
-        }
-        
-        function drawPlayer() {
-            const x = player.x;
-            const y = player.y;
+        function drawPlayer(x, y) {
+            const px = x * TILE_SIZE;
+            const py = y * TILE_SIZE;
+            const size = TILE_SIZE * 0.9;
+            const offset = TILE_SIZE * 0.05;
             
             // Sombra
             ctx.fillStyle = 'rgba(0,0,0,0.3)';
             ctx.beginPath();
-            ctx.ellipse(x + 30, y + 55, 25, 8, 0, 0, Math.PI * 2);
+            ctx.ellipse(px + TILE_SIZE/2, py + size + offset - 2, size/3, size/6, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Corpo (bruxa)
+            ctx.fillStyle = '#2d0052';
+            ctx.fillRect(px + offset + size/4, py + offset + size/2, size/2, size/2);
+            
+            // Capa
+            ctx.fillStyle = '#ff6b00';
+            ctx.beginPath();
+            ctx.moveTo(px + offset + size/4, py + offset + size/2 + 4);
+            ctx.lineTo(px + offset, py + offset + size/2 + size/3);
+            ctx.lineTo(px + offset + size/6, py + offset + size - 4);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.moveTo(px + offset + size*3/4, py + offset + size/2 + 4);
+            ctx.lineTo(px + offset + size, py + offset + size/2 + size/3);
+            ctx.lineTo(px + offset + size*5/6, py + offset + size - 4);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Cabeça
+            ctx.fillStyle = '#ffcc99';
+            ctx.beginPath();
+            ctx.arc(px + TILE_SIZE/2, py + offset + size/3, size/5, 0, Math.PI * 2);
             ctx.fill();
             
             // Chapéu de bruxa
             ctx.fillStyle = '#4B0082';
             ctx.beginPath();
-            ctx.moveTo(x + 10, y + 10);
-            ctx.lineTo(x + 30, y - 5);
-            ctx.lineTo(x + 50, y + 10);
+            ctx.moveTo(px + offset + size/4, py + offset + size/6);
+            ctx.lineTo(px + TILE_SIZE/2, py + offset);
+            ctx.lineTo(px + offset + size*3/4, py + offset + size/6);
             ctx.closePath();
             ctx.fill();
             
-            ctx.fillRect(x + 5, y + 10, 50, 6);
-            
-            // Cabeça
-            ctx.fillStyle = '#ff9500';
-            ctx.beginPath();
-            ctx.arc(x + 30, y + 28, 18, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.fillRect(px + offset + size/5, py + offset + size/6, size*3/5, 3);
             
             // Olhos
             ctx.fillStyle = '#000';
-            ctx.fillRect(x + 22, y + 25, 4, 4);
-            ctx.fillRect(x + 34, y + 25, 4, 4);
+            ctx.fillRect(px + TILE_SIZE/2 - 4, py + offset + size/3 - 2, 2, 2);
+            ctx.fillRect(px + TILE_SIZE/2 + 2, py + offset + size/3 - 2, 2, 2);
+            
+            // Ferramenta equipada
+            if (game.currentTool) {
+                ctx.font = '16px Arial';
+                ctx.fillText(game.currentTool.emoji, px + size + 2, py + offset + size/2);
+            }
+        }
+        
+        function drawItem(item, x, y) {
+            const px = x * TILE_SIZE;
+            const py = y * TILE_SIZE;
+            
+            // Brilho
+            const time = Date.now() / 500;
+            ctx.save();
+            ctx.globalAlpha = 0.3 + Math.sin(time) * 0.2;
+            ctx.fillStyle = '#ffd700';
+            ctx.beginPath();
+            ctx.arc(px + TILE_SIZE/2, py + TILE_SIZE/2, TILE_SIZE/2 + 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+            
+            // Item
+            ctx.font = '24px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(item.emoji, px + TILE_SIZE/2, py + TILE_SIZE/2 - Math.sin(time * 2) * 3);
+        }
+        
+        function drawPumpkin(x, y) {
+            const px = x * TILE_SIZE;
+            const py = y * TILE_SIZE;
+            const time = Date.now() / 300;
+            
+            // Brilho mágico
+            ctx.save();
+            ctx.globalAlpha = 0.4 + Math.sin(time) * 0.3;
+            ctx.fillStyle = '#ff6b00';
+            ctx.beginPath();
+            ctx.arc(px + TILE_SIZE/2, py + TILE_SIZE/2, TILE_SIZE/2 + 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+            
+            // Abóbora
+            ctx.fillStyle = '#ff8c00';
+            ctx.beginPath();
+            ctx.arc(px + TILE_SIZE/2, py + TILE_SIZE/2, TILE_SIZE/3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Rosto
+            ctx.fillStyle = '#000';
+            // Olhos triangulares
+            ctx.beginPath();
+            ctx.moveTo(px + TILE_SIZE/2 - 6, py + TILE_SIZE/2 - 4);
+            ctx.lineTo(px + TILE_SIZE/2 - 3, py + TILE_SIZE/2 - 8);
+            ctx.lineTo(px + TILE_SIZE/2, py + TILE_SIZE/2 - 4);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.moveTo(px + TILE_SIZE/2, py + TILE_SIZE/2 - 4);
+            ctx.lineTo(px + TILE_SIZE/2 + 3, py + TILE_SIZE/2 - 8);
+            ctx.lineTo(px + TILE_SIZE/2 + 6, py + TILE_SIZE/2 - 4);
+            ctx.fill();
             
             // Boca
             ctx.beginPath();
-            ctx.arc(x + 30, y + 32, 6, 0, Math.PI);
+            ctx.arc(px + TILE_SIZE/2, py + TILE_SIZE/2 + 2, 6, 0, Math.PI);
             ctx.fill();
             
-            // Corpo
-            ctx.fillStyle = '#2d0052';
-            ctx.fillRect(x + 15, y + 40, 30, 20);
+            // Talo
+            ctx.fillStyle = '#2d5016';
+            ctx.fillRect(px + TILE_SIZE/2 - 2, py + TILE_SIZE/2 - TILE_SIZE/3 - 3, 4, 6);
             
-            // Capa
-            ctx.fillStyle = '#ff6b00';
-            ctx.beginPath();
-            ctx.moveTo(x + 15, y + 42);
-            ctx.lineTo(x + 5, y + 50);
-            ctx.lineTo(x + 10, y + 58);
-            ctx.lineTo(x + 15, y + 60);
-            ctx.closePath();
-            ctx.fill();
-            
-            ctx.beginPath();
-            ctx.moveTo(x + 45, y + 42);
-            ctx.lineTo(x + 55, y + 50);
-            ctx.lineTo(x + 50, y + 58);
-            ctx.lineTo(x + 45, y + 60);
-            ctx.closePath();
-            ctx.fill();
-        }
-        
-        function drawBackground() {
-            // Céu
-            const grad = ctx.createLinearGradient(0, 0, 0, H);
-            grad.addColorStop(0, '#1a0033');
-            grad.addColorStop(1, '#330066');
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, W, H);
-            
-            // Estrelas
-            ctx.fillStyle = '#fff';
-            for (let i = 0; i < 80; i++) {
-                const x = (i * 137) % W;
-                const y = (i * 73) % H;
-                const size = (i % 3) + 1;
-                ctx.fillRect(x, y, size, size);
-            }
-            
-            // Lua
+            // Partículas flutuantes
             ctx.fillStyle = '#ffa500';
-            ctx.shadowColor = '#ffa500';
-            ctx.shadowBlur = 30;
-            ctx.beginPath();
-            ctx.arc(W - 100, 80, 35, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.shadowBlur = 0;
-        }
-        
-        function checkLevel() {
-            if (game.collected >= game.needed) {
-                game.state = 'levelComplete';
-                const bonus = Math.floor(game.timer * 10);
-                game.score += bonus;
-                document.getElementById('levelStats').innerHTML = `
-                    <p style="font-size: 16px; color: #ffa500;">🎃 ${game.collected}/${game.needed} COLETADOS!</p>
-                    <br>
-                    <p><strong>Pontos:</strong> ${game.score}</p>
-                    <p><strong>Bônus de Tempo:</strong> +${bonus}</p>
-                `;
-                document.getElementById('levelCompleteScreen').classList.remove('hidden');
+            for (let i = 0; i < 3; i++) {
+                const angle = time + i * Math.PI * 2 / 3;
+                const radius = TILE_SIZE/2 + 8;
+                const particleX = px + TILE_SIZE/2 + Math.cos(angle) * radius;
+                const particleY = py + TILE_SIZE/2 + Math.sin(angle) * radius;
+                ctx.fillRect(particleX, particleY, 2, 2);
             }
         }
         
-        function updateTimer() {
+        // ===== UPDATE CAMERA =====
+        function updateCamera() {
+            game.camera.x = player.x - VIEWPORT_WIDTH / 2;
+            game.camera.y = player.y - VIEWPORT_HEIGHT / 2;
+            
+            game.camera.x = Math.max(0, Math.min(game.camera.x, MAP_WIDTH - VIEWPORT_WIDTH));
+            game.camera.y = Math.max(0, Math.min(game.camera.y, MAP_HEIGHT - VIEWPORT_HEIGHT));
+        }
+        
+        // ===== RENDER =====
+        function render() {
             if (game.state !== 'playing') return;
             
-            const now = Date.now();
-            if (now - game.lastTime >= 1000) {
-                game.timer--;
-                document.getElementById('timer').textContent = game.timer;
-                game.lastTime = now;
-                
-                if (game.timer <= 0) {
-                    gameOver();
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            updateCamera();
+            
+            const startCol = Math.floor(game.camera.x);
+            const startRow = Math.floor(game.camera.y);
+            const endCol = Math.min(startCol + VIEWPORT_WIDTH + 1, MAP_WIDTH);
+            const endRow = Math.min(startRow + VIEWPORT_HEIGHT + 1, MAP_HEIGHT);
+            
+            // Draw tiles
+            for (let row = startRow; row < endRow; row++) {
+                for (let col = startCol; col < endCol; col++) {
+                    const tile = worldMap[row][col];
+                    const screenX = col - game.camera.x;
+                    const screenY = row - game.camera.y;
+                    drawTile(tile, screenX, screenY);
                 }
             }
+            
+            // Draw items
+            items.forEach(item => {
+                if (!item.collected) {
+                    const screenX = item.x - game.camera.x;
+                    const screenY = item.y - game.camera.y;
+                    if (screenX >= -1 && screenX <= VIEWPORT_WIDTH && screenY >= -1 && screenY <= VIEWPORT_HEIGHT) {
+                        drawItem(item, screenX, screenY);
+                    }
+                }
+            });
+            
+            // Draw pumpkins
+            pumpkins.forEach(pumpkin => {
+                if (!pumpkin.collected) {
+                    const screenX = pumpkin.x - game.camera.x;
+                    const screenY = pumpkin.y - game.camera.y;
+                    if (screenX >= -1 && screenX <= VIEWPORT_WIDTH && screenY >= -1 && screenY <= VIEWPORT_HEIGHT) {
+                        drawPumpkin(screenX, screenY);
+                    }
+                }
+            });
+            
+            // Draw player
+            const playerScreenX = player.x - game.camera.x;
+            const playerScreenY = player.y - game.camera.y;
+            drawPlayer(playerScreenX, playerScreenY);
         }
         
-        function nextLevel() {
-            document.getElementById('levelCompleteScreen').classList.add('hidden');
+        // ===== UPDATE =====
+        function update() {
+            if (game.state !== 'playing') return;
             
-            if (game.level >= 5) {
-                victory();
-            } else {
-                game.level++;
-                startLevel();
+            let dx = 0, dy = 0;
+            
+            if (game.keys.ArrowUp || game.keys.w || game.keys.W || game.touch.up) dy -= 1;
+            if (game.keys.ArrowDown || game.keys.s || game.keys.S || game.touch.down) dy += 1;
+            if (game.keys.ArrowLeft || game.keys.a || game.keys.A || game.touch.left) dx -= 1;
+            if (game.keys.ArrowRight || game.keys.d || game.keys.D || game.touch.right) dx += 1;
+            
+            if (dx !== 0 || dy !== 0) {
+    const length = Math.sqrt(dx * dx + dy * dy);
+    dx = (dx / length) * player.speed;
+    dy = (dy / length) * player.speed;
+    
+    const newX = player.x + dx;
+    const newY = player.y + dy;
+    
+    let blockedX = false;
+    let blockedY = false;
+    
+    if (canMove(newX, player.y)) {
+        player.x = newX;
+    } else {
+        blockedX = true;
+    }
+    
+    if (canMove(player.x, newY)) {
+        player.y = newY;
+    } else {
+        blockedY = true;
+    }
+    
+    // Mostrar mensagem quando bloqueado
+if (blockedX || blockedY) {
+    const checkX = player.x + (dx * 3);
+    const checkY = player.y + (dy * 3);
+    const tile = getTile(checkX, checkY);
+    
+    if (tile === TILES.TREE && !hasItem('axe')) {
+        if (!game.lastBlockMessage || Date.now() - game.lastBlockMessage > 2000) {
+            showTooltip('🌲 Precisa do Machado 🪓 para cortar árvores!');
+            game.lastBlockMessage = Date.now();
+        }
+    } else if (tile === TILES.DOOR && !hasItem('key')) {
+        if (!game.lastBlockMessage || Date.now() - game.lastBlockMessage > 2000) {
+            showTooltip('🔒 Precisa da Chave 🔑 para abrir a porta!');
+            game.lastBlockMessage = Date.now();
+        }
+    } else if ((tile === TILES.CAVE || tile === TILES.STONE || tile === TILES.ROCK) && !hasItem('pickaxe')) {
+        if (!game.lastBlockMessage || Date.now() - game.lastBlockMessage > 2000) {
+            showTooltip('⛰️ Precisa da Picareta ⛏️ para quebrar rochas!');
+            game.lastBlockMessage = Date.now();
+        }
+    }
+}
+}
+            
+            // Check item collection
+            items.forEach(item => {
+                if (!item.collected) {
+                    const dist = Math.sqrt(Math.pow(player.x - item.x, 2) + Math.pow(player.y - item.y, 2));
+                   if (dist < 1.2) {  // AUMENTADO de 0.8 para 1.2 (área maior de coleta)
+                        item.collected = true;
+                       addItem(item);
+                    }
+               }
+            });
+
+            // Check pumpkin collection
+            pumpkins.forEach(pumpkin => {
+                if (!pumpkin.collected) {
+                    const dist = Math.sqrt(Math.pow(player.x - pumpkin.x, 2) + Math.pow(player.y - pumpkin.y, 2));
+                    if (dist < 1.2) {  // AUMENTADO de 0.8 para 1.2 (área maior de coleta)
+                       if (pumpkin.requires && !hasItem(pumpkin.requires)) {
+                            showTooltip(`Precisa de ${getToolName(pumpkin.requires)}!`);
+                       } else {
+                            pumpkin.collected = true;
+                            game.pumpkinsFound++;
+                           document.getElementById('pumpkinCount').textContent = game.pumpkinsFound;
+                           showTooltip(`Encontrou: ${pumpkin.name}! (${game.pumpkinsFound}/5)`);
+                
+                            if (game.pumpkinsFound >= 5) {
+                                setTimeout(victory, 1000);
+                           }
+                        }
+                   }
+                }
+            });
+        }
+        
+        function getToolName(type) {
+            const names = {
+                'axe': 'Machado 🪓',
+                'pickaxe': 'Picareta ⛏️',
+                'key': 'Chave 🔑'
+            };
+            return names[type] || type;
+        }
+        
+        // ===== TOOLTIP =====
+        function showTooltip(text) {
+            const existing = document.querySelector('.tooltip');
+            if (existing) existing.remove();
+            
+            const tooltip = document.createElement('div');
+            tooltip.className = 'tooltip';
+            tooltip.textContent = text;
+            document.body.appendChild(tooltip);
+            
+            setTimeout(() => tooltip.remove(), 3000);
+        }
+        
+        // ===== GAME LOOP =====
+        function gameLoop() {
+            update();
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // ===== CONTROLS =====
+        document.addEventListener('keydown', e => {
+            game.keys[e.key] = true;
+            
+            if ((e.key === ' ' || e.key === 'e' || e.key === 'E') && game.state === 'playing') {
+                e.preventDefault();
+                useTool();
             }
-        }
+        });
         
-        function startLevel() {
-            game.state = 'playing';
-            game.collected = 0;
-            game.needed = 10 + game.level * 2;
-            game.timer = 30 + game.level * 5;
-            game.lastTime = Date.now();
-            
-            pumpkins = [];
-            obstacles = [];
-            particles = [];
-            
-            player.x = W / 2;
-            
-            updateHUD();
-            spawnPumpkin();
-            spawnObstacle();
-        }
+        document.addEventListener('keyup', e => {
+            game.keys[e.key] = false;
+        });
         
+        // Mobile controls
+        document.querySelectorAll('.btn-dpad').forEach(btn => {
+            const dir = btn.dataset.dir;
+            
+            btn.addEventListener('touchstart', e => {
+                e.preventDefault();
+                game.touch[dir] = true;
+            });
+            
+            btn.addEventListener('touchend', e => {
+                e.preventDefault();
+                game.touch[dir] = false;
+            });
+        });
+        
+        document.getElementById('btnAction').addEventListener('touchstart', e => {
+            e.preventDefault();
+            useTool();
+        });
+        
+        function useTool() {
+    if (game.currentTool) {
+        const toolNames = {
+            'axe': 'cortando árvores 🪓',
+            'pickaxe': 'quebrando pedras ⛏️', 
+            'key': 'abrindo portas 🔑'
+        };
+        const action = toolNames[game.currentTool.type] || game.currentTool.name;
+        showTooltip(`${game.currentTool.emoji} Ferramenta equipada: ${action}`);
+    } else {
+        showTooltip('⚠️ Nenhuma ferramenta equipada!');
+    }
+}
+        
+        // ===== GAME STATES =====
         function startGame() {
             document.getElementById('startScreen').classList.add('hidden');
-            game.level = 1;
-            game.score = 0;
-            startLevel();
-        }
-        
-        function gameOver() {
-            game.state = 'gameover';
-            document.getElementById('gameOverStats').innerHTML = `
-                <p><strong>Nível Alcançado:</strong> ${game.level}/5</p>
-                <br>
-                <p><strong>Pontos:</strong> ${game.score}</p>
-                <p><strong>Abóboras Coletadas:</strong> ${game.collected}</p>
-            `;
-            document.getElementById('gameOverScreen').classList.remove('hidden');
+            game.state = 'playing';
+            game.pumpkinsFound = 0;
+            player.x = 5;
+            player.y = 10;
+            player.inventory = [];
+            game.currentTool = null;
+            
+            items.forEach(item => item.collected = false);
+            pumpkins.forEach(pumpkin => pumpkin.collected = false);
+            
+            document.getElementById('pumpkinCount').textContent = '0';
+            document.getElementById('currentTool').textContent = 'Mãos';
+            renderInventory();
+            gameLoop();
         }
         
         function victory() {
             game.state = 'victory';
             const code = window._getCape();
             document.getElementById('capeCode').textContent = code;
-            document.getElementById('finalStats').innerHTML = `
-                <p style="font-size: 14px;"><strong>PONTOS FINAIS: ${game.score}</strong></p>
-            `;
+            document.getElementById('victoryScreen').classList.remove('hidden');
+        }
+        
+        function showCredits() {
+            document.getElementById('victoryScreen').classList.add('hidden');
+            document.getElementById('creditsScreen').classList.remove('hidden');
+            
+            // Reiniciar animação
+            const credits = document.querySelector('.credits');
+            credits.style.animation = 'none';
+            setTimeout(() => {
+                credits.style.animation = 'creditsScroll 25s linear';
+            }, 10);
+        }
+        
+        function closeCredits() {
+            document.getElementById('creditsScreen').classList.add('hidden');
             document.getElementById('victoryScreen').classList.remove('hidden');
         }
         
         function restartGame() {
-            document.getElementById('gameOverScreen').classList.add('hidden');
             document.getElementById('victoryScreen').classList.add('hidden');
+            document.getElementById('creditsScreen').classList.add('hidden');
             startGame();
         }
         
@@ -844,63 +1579,12 @@
                 t.select();
                 document.execCommand('copy');
                 document.body.removeChild(t);
-                alert('Código copiado!');
+                showTooltip('Código copiado!');
             }
         }
         
-        function gameLoop() {
-            if (game.state === 'playing') {
-                drawBackground();
-                
-                updatePlayer();
-                updateTimer();
-                
-                pumpkins = pumpkins.filter(p => p.update());
-                obstacles = obstacles.filter(o => o.update());
-                particles = particles.filter(p => p.update());
-                
-                pumpkins.forEach(p => p.draw());
-                obstacles.forEach(o => o.draw());
-                drawPlayer();
-                particles.forEach(p => p.draw());
-                
-                checkLevel();
-            }
-            
-            requestAnimationFrame(gameLoop);
-        }
-        
-        // Events
-        document.addEventListener('keydown', e => {
-            game.keys[e.key] = true;
-            if (['ArrowLeft', 'ArrowRight'].includes(e.key)) e.preventDefault();
-        });
-        
-        document.addEventListener('keyup', e => {
-            game.keys[e.key] = false;
-        });
-        
-        document.getElementById('btnLeft').addEventListener('touchstart', e => {
-            e.preventDefault();
-            game.touch.left = true;
-        });
-        
-        document.getElementById('btnLeft').addEventListener('touchend', e => {
-            e.preventDefault();
-            game.touch.left = false;
-        });
-        
-        document.getElementById('btnRight').addEventListener('touchstart', e => {
-            e.preventDefault();
-            game.touch.right = true;
-        });
-        
-        document.getElementById('btnRight').addEventListener('touchend', e => {
-            e.preventDefault();
-            game.touch.right = false;
-        });
-        
-        gameLoop();
+        // Inicializar inventário
+        renderInventory();
     </script>
 </body>
 </html>
