@@ -408,20 +408,125 @@
             100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
         }
         
-        /* Watermark */
         .watermark {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.8);
-            padding: 8px 15px;
-            border-radius: 8px;
-            border: 2px solid #ff6b00;
-            font-size: 9px;
-            color: #ff9500;
-            z-index: 99;
-            box-shadow: 0 0 15px rgba(255,107,0,0.5);
-        }
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.8);
+    padding: 8px 15px;
+    border-radius: 8px;
+    border: 2px solid #ff6b00;
+    font-size: 9px;
+    color: #ff9500;
+    z-index: 99;
+    box-shadow: 0 0 15px rgba(255,107,0,0.5);
+}
+
+/* Sistema de Ranking */
+.nick-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.97);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+}
+
+.nick-input-container {
+    background: linear-gradient(135deg, #2d0052 0%, #ff6b00 100%);
+    border: 6px solid #ffa500;
+    border-radius: 25px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 0 80px rgba(255,165,0,0.9);
+    max-width: 500px;
+}
+
+.nick-input {
+    width: 100%;
+    padding: 15px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 14px;
+    background: rgba(0,0,0,0.7);
+    border: 4px solid #ffa500;
+    border-radius: 12px;
+    color: #fff;
+    text-align: center;
+    margin: 20px 0;
+    box-shadow: inset 0 0 20px rgba(255,107,0,0.3);
+}
+
+.nick-input:focus {
+    outline: none;
+    border-color: #00ff88;
+    box-shadow: 0 0 25px rgba(0,255,136,0.6);
+}
+
+.ranking-btn {
+    background: linear-gradient(135deg, #00ff88 0%, #00cc66 100%);
+    border: 4px solid #fff;
+    border-radius: 12px;
+    padding: 12px 25px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 11px;
+    color: #000;
+    cursor: pointer;
+    margin: 10px;
+    box-shadow: 0 5px 0 rgba(0,0,0,0.4);
+    transition: all 0.3s;
+}
+
+.ranking-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 0 rgba(0,0,0,0.4);
+    filter: brightness(1.1);
+}
+
+.ranking-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 3px 0 rgba(0,0,0,0.4);
+}
+
+.ranking-table {
+    background: rgba(0,0,0,0.8);
+    border: 4px solid #ffa500;
+    border-radius: 15px;
+    padding: 20px;
+    margin: 25px 0;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.ranking-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .nick-input-container {
+        padding: 30px 20px;
+    }
+    
+    .nick-input {
+        font-size: 12px;
+    }
+    
+    .ranking-btn {
+        font-size: 9px;
+        padding: 10px 20px;
+    }
+    
+    .ranking-table {
+        font-size: 9px;
+    }
+}
         
         .hidden {
             display: none !important;
@@ -493,8 +598,32 @@
         <div class="watermark">⚡ YORUS</div>
     </div>
     
-    <!-- Start Screen -->
-    <div class="overlay" id="startScreen">
+    <!-- Nick Screen -->
+<div class="nick-screen" id="nickScreen">
+    <div class="nick-input-container">
+        <div class="title" style="font-size: 26px; margin-bottom: 20px;">
+            👤 SEU APELIDO
+        </div>
+        <div class="text" style="margin-bottom: 15px;">
+            Digite seu nick para aparecer no ranking!
+        </div>
+        <input 
+            type="text" 
+            id="nickInput" 
+            class="nick-input" 
+            placeholder="Seu Nick Aqui" 
+            maxlength="15"
+            autocomplete="off"
+        >
+        <button class="btn" onclick="submitNick()">✅ CONTINUAR</button>
+        <button class="ranking-btn" onclick="showRankings()">
+            🏆 VER RANKINGS
+        </button>
+    </div>
+</div>
+
+<!-- Start Screen -->
+<div class="overlay hidden" id="startScreen">
         <div class="overlay-content">
             <div class="title">🎃 PUMPKIN WEEN 🎃</div>
             <div class="subtitle">✨ A Halloween Adventure ✨</div>
@@ -546,19 +675,59 @@
                     <div class="cape-code" id="capeCode">CARREGANDO...</div>
                     <button class="btn" onclick="copyCape()">📋 COPIAR CÓDIGO</button>
                     <p style="font-size: 10px; margin-top: 10px; color: #fff;">
-                        ⚠️ Use este código em <strong>optifine.net/login</strong>
+                        ⚠️ Use este código em <strong>optifine.net/cape</strong>
                     </p>
                 </div>
                 
                 <p style="font-size: 13px; margin-top: 20px;">
-                    Obrigado por jogar! 🎮
-                </p>
+    Obrigado por jogar! 🎮
+</p>
+
+<div style="background: rgba(0,0,0,0.6); padding: 20px; border-radius: 15px; margin: 20px 0; border: 3px solid #00ff88;">
+    <p style="font-size: 14px; color: #00ff88; margin-bottom: 10px;">
+        ⏱️ SEU TEMPO
+    </p>
+    <p style="font-size: 20px; color: #ffa500;" id="finalTime">
+        0:00
+    </p>
+    <p style="font-size: 11px; color: #fff; margin-top: 15px;">
+        Seu recorde foi salvo no ranking!
+    </p>
+</div>
             </div>
-            <button class="btn" onclick="showCredits()">🎬 VER CRÉDITOS</button>
-            <button class="btn" onclick="restartGame()">🔄 JOGAR NOVAMENTE</button>
+<button class="ranking-btn" onclick="showRankingsFromVictory()">
+    🏆 VER RANKINGS
+</button>
+<button class="btn" onclick="showCredits()">🎬 VER CRÉDITOS</button>
+<button class="btn" onclick="restartGame()">🔄 JOGAR NOVAMENTE</button>
         </div>
     </div>
     
+<!-- Rankings Screen -->
+<div class="overlay hidden" id="rankingsScreen">
+    <div class="overlay-content" style="max-width: 800px;">
+        <div class="title" style="font-size: 28px;">🏆 RANKINGS 🏆</div>
+        
+        <div class="ranking-tabs">
+            <button class="ranking-btn" onclick="switchRankingTab('speed')">
+                ⚡ MAIS RÁPIDOS
+            </button>
+            <button class="ranking-btn" onclick="switchRankingTab('pumpkins')">
+                🎃 MAIS ABÓBORAS
+            </button>
+            <button class="ranking-btn" onclick="switchRankingTab('playtime')">
+                ⏰ MAIS TEMPO
+            </button>
+        </div>
+        
+        <div class="ranking-table" id="rankingContent">
+            <!-- Conteúdo dinâmico -->
+        </div>
+        
+        <button class="btn" onclick="closeRankings()">🔙 VOLTAR</button>
+    </div>
+</div>
+
     <!-- Credits Screen -->
     <div class="overlay hidden" id="creditsScreen">
         <div class="overlay-content" style="background: linear-gradient(180deg, #000000 0%, #1a0033 50%, #2d0052 100%);">
@@ -644,8 +813,8 @@
                 </div>
                 
                 <div class="credits-small" style="margin: 50px 0; font-size: 12px; color: #888;">
-                    Obrigado por jogar!
-                </div>
+    Obrigado por jogar!
+</div>
             </div>
             <button class="btn" onclick="closeCredits()" style="margin-top: 50px;">🔙 VOLTAR</button>
         </div>
@@ -803,7 +972,7 @@
         window.addEventListener('resize', resizeCanvas);
         
         // ===== GAME STATE =====
-        const game = {
+const game = {
     state: 'menu',
     pumpkinsFound: 0,
     currentTool: null,
@@ -811,7 +980,58 @@
     touch: {up: false, down: false, left: false, right: false},
     camera: {x: 0, y: 0},
     showTooltip: null,
-    lastBlockMessage: 0  // ADICIONE ESTA LINHA
+    lastBlockMessage: 0,
+    playerNick: '',
+    startTime: 0,
+    endTime: 0
+};
+
+// ===== SISTEMA DE RANKING =====
+const RankingSystem = {
+    saveScore(nick, time, pumpkins) {
+        const rankings = this.getRankings();
+        const score = {
+            nick: nick,
+            time: time,
+            pumpkins: pumpkins,
+            date: new Date().toISOString(),
+            completed: pumpkins >= 5
+        };
+        
+        rankings.push(score);
+        localStorage.setItem('pumpkinRankings', JSON.stringify(rankings));
+    },
+    
+    getRankings() {
+        const data = localStorage.getItem('pumpkinRankings');
+        return data ? JSON.parse(data) : [];
+    },
+    
+    getTopSpeed() {
+        return this.getRankings()
+            .filter(s => s.completed)
+            .sort((a, b) => a.time - b.time)
+            .slice(0, 10);
+    },
+    
+    getTopPumpkins() {
+        return this.getRankings()
+            .sort((a, b) => b.pumpkins - a.pumpkins)
+            .slice(0, 10);
+    },
+    
+    getTopPlaytime() {
+        return this.getRankings()
+            .sort((a, b) => b.time - a.time)
+            .slice(0, 10);
+    },
+    
+    formatTime(ms) {
+        const seconds = Math.floor(ms / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
 };
         
         // ===== MAPA DO MUNDO =====
@@ -870,7 +1090,7 @@ const worldMap = [
         const player = {
             x: 5,
             y: 10,
-            speed: 0.07,  // REDUZIDO de 0.15 para 0.08 (mais lento)
+            speed: 0.08,  // REDUZIDO de 0.15 para 0.08 (mais lento)
             inventory: []
         };
         
@@ -1500,7 +1720,150 @@ if (blockedX || blockedY) {
             useTool();
         });
         
-        function useTool() {
+        // ===== FUNÇÕES DE RANKING =====
+function submitNick() {
+    const nick = document.getElementById('nickInput').value.trim();
+    
+    if (nick.length < 2) {
+        showTooltip('⚠️ Nick deve ter pelo menos 2 caracteres!');
+        return;
+    }
+    
+    game.playerNick = nick;
+    document.getElementById('nickScreen').classList.add('hidden');
+    document.getElementById('startScreen').classList.remove('hidden');
+}
+
+function showRankings() {
+    document.getElementById('nickScreen').classList.add('hidden');
+    document.getElementById('startScreen').classList.add('hidden');
+    document.getElementById('rankingsScreen').classList.remove('hidden');
+    initRankingButtons(); // Inicializar botões
+    switchRankingTab('speed');
+}
+
+function showRankingsFromVictory() {
+    document.getElementById('victoryScreen').classList.add('hidden');
+    document.getElementById('rankingsScreen').classList.remove('hidden');
+    initRankingButtons(); // Inicializar botões
+    switchRankingTab('speed');
+}
+
+function closeRankings() {
+    document.getElementById('rankingsScreen').classList.add('hidden');
+    
+    if (game.state === 'victory') {
+        document.getElementById('victoryScreen').classList.remove('hidden');
+    } else if (game.playerNick) {
+        document.getElementById('startScreen').classList.remove('hidden');
+    } else {
+        document.getElementById('nickScreen').classList.remove('hidden');
+    }
+}
+
+// Inicializar eventos dos botões de ranking
+function initRankingButtons() {
+    const buttons = document.querySelectorAll('.ranking-tabs .ranking-btn');
+    if (buttons.length >= 3) {
+        buttons[0].onclick = () => switchRankingTab('speed');
+        buttons[1].onclick = () => switchRankingTab('pumpkins');
+        buttons[2].onclick = () => switchRankingTab('playtime');
+    }
+}
+
+function switchRankingTab(type) {
+    let rankings = [];
+    let title = '';
+    let emptyMessage = '';
+    
+    // Atualizar estado dos botões
+    document.querySelectorAll('.ranking-tabs .ranking-btn').forEach(btn => {
+        btn.style.background = 'linear-gradient(135deg, #00ff88 0%, #00cc66 100%)';
+        btn.style.color = '#000';
+    });
+    
+    switch(type) {
+        case 'speed':
+            rankings = RankingSystem.getTopSpeed();
+            title = '⚡ TOP 10 MAIS RÁPIDOS (Jogo Completo)';
+            emptyMessage = 'Nenhum jogador completou o jogo ainda!';
+            document.querySelectorAll('.ranking-tabs .ranking-btn')[0].style.background = 'linear-gradient(135deg, #ff6b00 0%, #cc5500 100%)';
+            document.querySelectorAll('.ranking-tabs .ranking-btn')[0].style.color = '#fff';
+            break;
+        case 'pumpkins':
+            rankings = RankingSystem.getTopPumpkins();
+            title = '🎃 TOP 10 MAIS ABÓBORAS';
+            emptyMessage = 'Nenhuma partida registrada ainda!';
+            document.querySelectorAll('.ranking-tabs .ranking-btn')[1].style.background = 'linear-gradient(135deg, #ff6b00 0%, #cc5500 100%)';
+            document.querySelectorAll('.ranking-tabs .ranking-btn')[1].style.color = '#fff';
+            break;
+        case 'playtime':
+            rankings = RankingSystem.getTopPlaytime();
+            title = '⏰ TOP 10 MAIS TEMPO JOGADO';
+            emptyMessage = 'Nenhuma partida registrada ainda!';
+            document.querySelectorAll('.ranking-tabs .ranking-btn')[2].style.background = 'linear-gradient(135deg, #ff6b00 0%, #cc5500 100%)';
+            document.querySelectorAll('.ranking-tabs .ranking-btn')[2].style.color = '#fff';
+            break;
+    }
+    
+    let html = `
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h2 style="font-size: 16px; color: #ffa500; text-shadow: 0 0 10px rgba(255,165,0,0.8);">
+                ${title}
+            </h2>
+        </div>
+    `;
+    
+    if (rankings.length === 0) {
+        html += `
+            <div style="text-align: center; padding: 40px; color: #888; font-size: 12px;">
+                ${emptyMessage}
+            </div>
+        `;
+    } else {
+        html += '<table style="width: 100%; border-collapse: collapse;">';
+        html += `
+            <thead>
+                <tr style="border-bottom: 2px solid #ff6b00; color: #ffa500;">
+                    <th style="padding: 12px; text-align: left; font-size: 11px;">#</th>
+                    <th style="padding: 12px; text-align: left; font-size: 11px;">NICK</th>
+                    <th style="padding: 12px; text-align: center; font-size: 11px;">🎃</th>
+                    <th style="padding: 12px; text-align: center; font-size: 11px;">⏱️</th>
+                </tr>
+            </thead>
+            <tbody>
+        `;
+        
+        rankings.forEach((score, index) => {
+            const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
+            const rowColor = index % 2 === 0 ? 'rgba(255,107,0,0.1)' : 'transparent';
+            const isPlayer = score.nick === game.playerNick;
+            const highlightColor = isPlayer ? 'rgba(0,255,136,0.2)' : rowColor;
+            
+            html += `
+                <tr style="background: ${highlightColor}; border-bottom: 1px solid rgba(255,107,0,0.2);">
+                    <td style="padding: 10px; color: #fff; font-size: 11px;">
+                        ${medal} ${index + 1}º
+                    </td>
+                    <td style="padding: 10px; color: ${isPlayer ? '#00ff88' : '#fff'}; font-size: 11px; font-weight: ${isPlayer ? 'bold' : 'normal'};">
+                        ${score.nick} ${isPlayer ? '⭐' : ''}
+                    </td>
+                    <td style="padding: 10px; text-align: center; color: #ffa500; font-size: 11px;">
+                        ${score.pumpkins}/5
+                    </td>
+                    <td style="padding: 10px; text-align: center; color: #00ff88; font-size: 11px;">
+                        ${RankingSystem.formatTime(score.time)}
+                    </td>
+                </tr>
+            `;
+        });
+        
+        html += '</tbody></table>';
+    }
+    
+    document.getElementById('rankingContent').innerHTML = html;
+}
+function useTool() {
     if (game.currentTool) {
         const toolNames = {
             'axe': 'cortando árvores 🪓',
@@ -1516,29 +1879,39 @@ if (blockedX || blockedY) {
         
         // ===== GAME STATES =====
         function startGame() {
-            document.getElementById('startScreen').classList.add('hidden');
-            game.state = 'playing';
-            game.pumpkinsFound = 0;
-            player.x = 5;
-            player.y = 10;
-            player.inventory = [];
-            game.currentTool = null;
-            
-            items.forEach(item => item.collected = false);
-            pumpkins.forEach(pumpkin => pumpkin.collected = false);
-            
-            document.getElementById('pumpkinCount').textContent = '0';
-            document.getElementById('currentTool').textContent = 'Mãos';
-            renderInventory();
-            gameLoop();
-        }
+    document.getElementById('startScreen').classList.add('hidden');
+    game.state = 'playing';
+    game.pumpkinsFound = 0;
+    game.startTime = Date.now();
+    player.x = 5;
+    player.y = 10;
+    player.inventory = [];
+    game.currentTool = null;
+    
+    items.forEach(item => item.collected = false);
+    pumpkins.forEach(pumpkin => pumpkin.collected = false);
+    
+    document.getElementById('pumpkinCount').textContent = '0';
+    document.getElementById('currentTool').textContent = 'Mãos';
+    renderInventory();
+    gameLoop();
+}
         
         function victory() {
-            game.state = 'victory';
-            const code = window._getCape();
-            document.getElementById('capeCode').textContent = code;
-            document.getElementById('victoryScreen').classList.remove('hidden');
-        }
+    game.state = 'victory';
+    game.endTime = Date.now();
+    const playTime = game.endTime - game.startTime;
+    
+    // Salvar no ranking
+    RankingSystem.saveScore(game.playerNick, playTime, game.pumpkinsFound);
+    
+    // Mostrar tempo final
+    document.getElementById('finalTime').textContent = RankingSystem.formatTime(playTime);
+    
+    const code = window._getCape();
+    document.getElementById('capeCode').textContent = code;
+    document.getElementById('victoryScreen').classList.remove('hidden');
+}
         
         function showCredits() {
             document.getElementById('victoryScreen').classList.add('hidden');
@@ -1558,10 +1931,11 @@ if (blockedX || blockedY) {
         }
         
         function restartGame() {
-            document.getElementById('victoryScreen').classList.add('hidden');
-            document.getElementById('creditsScreen').classList.add('hidden');
-            startGame();
-        }
+    document.getElementById('victoryScreen').classList.add('hidden');
+    document.getElementById('creditsScreen').classList.add('hidden');
+    document.getElementById('rankingsScreen').classList.add('hidden');
+    document.getElementById('startScreen').classList.remove('hidden');
+}
         
         function copyCape() {
             const code = document.getElementById('capeCode').textContent;
