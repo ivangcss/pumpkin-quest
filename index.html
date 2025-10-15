@@ -2,8 +2,8 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>🎃 Pumpkin Ween - Halloween Adventure</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎃 Halloween Valley - RPG Adventure</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         
@@ -17,130 +17,264 @@
         
         body {
             font-family: 'Press Start 2P', cursive;
-            background: #000;
+            background: linear-gradient(135deg, #0a0015 0%, #1a0033 50%, #2d0052 100%);
             overflow: hidden;
-            width: 100vw;
-            height: 100vh;
-            touch-action: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
         }
         
-        #gameContainer {
+        /* Animated Background */
+        .bg-stars {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #0a0a0a;
+            pointer-events: none;
+            z-index: 0;
         }
         
-        #canvas {
+        .star {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        
+        #gameContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    background: #000;
+    overflow: hidden;
+}
+        
+        #canvas {
+            display: block;
             image-rendering: pixelated;
             image-rendering: crisp-edges;
-            background: #1a1a2e;
         }
         
         /* HUD */
-        .hud {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            background: rgba(10,10,10,0.92);
+.hud {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+            background: rgba(10, 10, 10, 0.95);
             border: 4px solid #ff6b00;
-            border-radius: 12px;
-            padding: 12px 18px;
+            border-radius: 15px;
+            padding: 15px 25px;
             z-index: 100;
-            box-shadow: 0 0 25px rgba(255,107,0,0.6), inset 0 0 20px rgba(255,107,0,0.1);
+            box-shadow: 0 0 30px rgba(255, 107, 0, 0.8), inset 0 0 20px rgba(255, 107, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .hud-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 8px 0;
             font-size: 11px;
             color: #fff;
-            line-height: 1.8;
-            backdrop-filter: blur(5px);
+        }
+        
+        .hud-label {
+            color: #ffa500;
+            text-shadow: 0 0 10px rgba(255, 165, 0, 0.8);
+            min-width: 25px;
         }
         
         .hud-value {
-            color: #ffa500;
+            color: #00ff88;
             font-weight: bold;
-            text-shadow: 0 0 10px rgba(255,165,0,0.8);
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.8);
+        }
+        
+        .bar-container {
+            width: 140px;
+            height: 18px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #666;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff0000 0%, #ff6b00 100%);
+            transition: width 0.3s;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+        }
+        
+        .energy-bar .bar-fill {
+            background: linear-gradient(90deg, #00ff88 0%, #00cc66 100%);
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.8);
         }
         
         /* Inventory */
-        .inventory {
-            position: fixed;
-            top: 15px;
-            right: 15px;
-            background: rgba(10,10,10,0.92);
+.inventory {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+            background: rgba(10, 10, 10, 0.95);
             border: 4px solid #ff6b00;
-            border-radius: 12px;
-            padding: 12px;
+            border-radius: 15px;
+            padding: 15px;
             z-index: 100;
-            box-shadow: 0 0 25px rgba(255,107,0,0.6);
-            backdrop-filter: blur(5px);
+            box-shadow: 0 0 30px rgba(255, 107, 0, 0.8);
+            backdrop-filter: blur(10px);
         }
         
         .inv-title {
-            font-size: 9px;
+            font-size: 10px;
             color: #ffa500;
             text-align: center;
-            margin-bottom: 10px;
-            text-shadow: 0 0 10px rgba(255,165,0,0.8);
+            margin-bottom: 12px;
+            text-shadow: 0 0 10px rgba(255, 165, 0, 0.8);
         }
         
         .inv-grid {
             display: grid;
-            grid-template-columns: repeat(3, 55px);
-            gap: 6px;
+            grid-template-columns: repeat(4, 60px);
+            gap: 8px;
         }
         
         .inv-slot {
-            width: 55px;
-            height: 55px;
-            background: rgba(20,20,30,0.8);
-            border: 3px solid #333;
-            border-radius: 8px;
+            width: 60px;
+            height: 60px;
+            background: rgba(20, 20, 40, 0.8);
+            border: 3px solid #444;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            font-size: 32px;
             position: relative;
             cursor: pointer;
             transition: all 0.2s;
         }
         
         .inv-slot:hover {
-            border-color: #666;
-            transform: scale(1.05);
+            border-color: #888;
+            transform: scale(1.08);
+            box-shadow: 0 0 15px rgba(255, 165, 0, 0.5);
         }
         
         .inv-slot.has-item {
-            background: rgba(255,165,0,0.25);
+            background: rgba(255, 165, 0, 0.2);
             border-color: #ffa500;
-            animation: itemGlow 2s infinite;
+            animation: itemPulse 2s infinite;
         }
         
         .inv-slot.selected {
             border-color: #00ff00;
-            box-shadow: 0 0 20px rgba(0,255,0,0.9);
-            background: rgba(0,255,0,0.15);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.9);
+            background: rgba(0, 255, 0, 0.15);
         }
         
-        @keyframes itemGlow {
-            0%, 100% { 
-                box-shadow: 0 0 8px rgba(255,165,0,0.4);
-                transform: scale(1);
-            }
-            50% { 
-                box-shadow: 0 0 20px rgba(255,165,0,0.9);
-                transform: scale(1.05);
-            }
+        .inv-count {
+            position: absolute;
+            bottom: 2px;
+            right: 4px;
+            font-size: 10px;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 2px 5px;
+            border-radius: 4px;
+            border: 1px solid #ffa500;
+        }
+        
+        @keyframes itemPulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(255, 165, 0, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(255, 165, 0, 1); }
+        }
+        
+        /* Quest Panel */
+.quest-panel {
+    position: fixed;
+    bottom: 15px;
+    left: 15px;
+    max-width: 400px;
+            background: rgba(10, 10, 10, 0.95);
+            border: 4px solid #ff6b00;
+            border-radius: 15px;
+            padding: 15px;
+            z-index: 100;
+            box-shadow: 0 0 30px rgba(255, 107, 0, 0.8);
+            backdrop-filter: blur(10px);
+        }
+        
+        .quest-title {
+            font-size: 10px;
+            color: #ffa500;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 165, 0, 0.8);
+        }
+        
+        .quest-item {
+            font-size: 9px;
+            color: #fff;
+            margin: 6px 0;
+            padding: 8px;
+            background: rgba(255, 107, 0, 0.1);
+            border-left: 3px solid #ff6b00;
+            border-radius: 5px;
+        }
+        
+        .quest-item.completed {
+            color: #00ff88;
+            border-left-color: #00ff88;
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+        
+        /* Minimap */
+.minimap {
+    position: fixed;
+    bottom: 15px;
+    right: 15px;
+    width: 250px;
+    height: 180px;
+            background: rgba(10, 10, 10, 0.95);
+            border: 4px solid #ff6b00;
+            border-radius: 15px;
+            padding: 10px;
+            z-index: 100;
+            box-shadow: 0 0 30px rgba(255, 107, 0, 0.8);
+            backdrop-filter: blur(10px);
+        }
+        
+        .minimap-title {
+            font-size: 8px;
+            color: #ffa500;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        
+        #minimapCanvas {
+            width: 100%;
+            height: calc(100% - 20px);
+            border: 2px solid #444;
+            border-radius: 5px;
+            image-rendering: pixelated;
         }
         
         /* Mobile Controls */
-        .controls {
+        .mobile-controls {
             position: fixed;
-            bottom: 30px;
+            bottom: 200px;
             left: 30px;
             display: none;
             z-index: 100;
@@ -148,78 +282,109 @@
         
         .dpad {
             position: relative;
-            width: 160px;
-            height: 160px;
+            width: 180px;
+            height: 180px;
         }
         
         .btn-dpad {
             position: absolute;
-            width: 55px;
-            height: 55px;
+            width: 60px;
+            height: 60px;
             background: linear-gradient(135deg, #ff6b00 0%, #ff9500 100%);
-            border: 4px solid rgba(255,255,255,0.9);
-            border-radius: 10px;
-            font-size: 22px;
+            border: 4px solid rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            font-size: 24px;
             color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 5px 0 rgba(0,0,0,0.5), 0 0 15px rgba(255,107,0,0.5);
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 107, 0, 0.6);
             touch-action: none;
-            user-select: none;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
         }
         
         .btn-dpad:active {
-            transform: translateY(3px);
-            box-shadow: 0 2px 0 rgba(0,0,0,0.5), 0 0 15px rgba(255,107,0,0.5);
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 107, 0, 0.6);
         }
         
-        .btn-dpad.up { top: 0; left: 52px; }
-        .btn-dpad.down { bottom: 0; left: 52px; }
-        .btn-dpad.left { top: 52px; left: 0; }
-        .btn-dpad.right { top: 52px; right: 0; }
+        .btn-dpad.up { top: 0; left: 60px; }
+        .btn-dpad.down { bottom: 0; left: 60px; }
+        .btn-dpad.left { top: 60px; left: 0; }
+        .btn-dpad.right { top: 60px; right: 0; }
+        
+        .action-buttons {
+            position: fixed;
+            bottom: 240px;
+            right: 240px;
+            display: none;
+            gap: 15px;
+            z-index: 100;
+        }
         
         .btn-action {
-            position: fixed;
-            bottom: 90px;
-            right: 40px;
-            width: 75px;
-            height: 75px;
+            width: 80px;
+            height: 80px;
             background: linear-gradient(135deg, #00ff00 0%, #00cc00 100%);
-            border: 5px solid rgba(255,255,255,0.9);
+            border: 5px solid rgba(255, 255, 255, 0.9);
             border-radius: 50%;
             font-size: 12px;
             color: #fff;
-            display: none;
+            display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 7px 0 rgba(0,0,0,0.5), 0 0 20px rgba(0,255,0,0.6);
-            z-index: 100;
+            box-shadow: 0 8px 0 rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 255, 0, 0.6);
             touch-action: none;
             text-align: center;
             line-height: 1.2;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            cursor: pointer;
         }
         
         .btn-action:active {
-            transform: translateY(4px);
-            box-shadow: 0 3px 0 rgba(0,0,0,0.5), 0 0 20px rgba(0,255,0,0.6);
+            transform: translateY(5px);
+            box-shadow: 0 3px 0 rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 255, 0, 0.6);
         }
         
-        /* Overlays */
-        .overlay {
+        /* Tooltip */
+        .tooltip {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            color: #ffa500;
+            padding: 15px 30px;
+            border-radius: 15px;
+            border: 4px solid #ff6b00;
+            font-size: 12px;
+            z-index: 250;
+            pointer-events: none;
+            animation: tooltipFade 2.5s forwards;
+            box-shadow: 0 0 30px rgba(255, 107, 0, 0.9);
+            max-width: 80%;
+            text-align: center;
+        }
+        
+        @keyframes tooltipFade {
+            0% { opacity: 0; transform: translate(-50%, -60%); }
+            15%, 85% { opacity: 1; transform: translate(-50%, -50%); }
+            100% { opacity: 0; transform: translate(-50%, -40%); }
+        }
+        
+        /* Menu Overlays */
+        .menu-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.97);
+            background: rgba(0, 0, 0, 0.98);
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 200;
-            animation: fadeIn 0.5s;
+            z-index: 300;
+            animation: fadeIn 0.3s;
         }
         
         @keyframes fadeIn {
@@ -227,58 +392,51 @@
             to { opacity: 1; }
         }
         
-        .overlay-content {
-            background: linear-gradient(135deg, #2d0052 0%, #ff6b00 100%);
+        .menu-content {
+            background: linear-gradient(135deg, #2d0052 0%, #4a0080 50%, #ff6b00 100%);
             border: 6px solid #ffa500;
             border-radius: 25px;
-            padding: 35px;
-            max-width: 95%;
-            max-height: 95vh;
+            padding: 40px;
+            max-width: 90%;
+            max-height: 90vh;
             overflow-y: auto;
             text-align: center;
-            box-shadow: 0 0 80px rgba(255,165,0,0.9), inset 0 0 40px rgba(0,0,0,0.3);
-            animation: slideIn 0.5s;
+            box-shadow: 0 0 80px rgba(255, 165, 0, 0.9), inset 0 0 40px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.4s;
         }
         
         @keyframes slideIn {
-            from { 
-                transform: translateY(-50px);
+            from {
+                transform: scale(0.8) translateY(-50px);
                 opacity: 0;
             }
-            to { 
-                transform: translateY(0);
+            to {
+                transform: scale(1) translateY(0);
                 opacity: 1;
             }
         }
         
-        .title {
-            font-size: 32px;
+        .menu-title {
+            font-size: 36px;
             color: #ffa500;
-            margin-bottom: 25px;
-            text-shadow: 4px 4px 0 #000, 0 0 20px rgba(255,165,0,0.8);
-            animation: titleBounce 1.5s infinite;
-            letter-spacing: 2px;
+            margin-bottom: 30px;
+            text-shadow: 4px 4px 0 #000, 0 0 20px rgba(255, 165, 0, 0.8);
+            animation: titleFloat 2s ease-in-out infinite;
         }
         
-        @keyframes titleBounce {
+        @keyframes titleFloat {
             0%, 100% { transform: translateY(0) scale(1); }
             50% { transform: translateY(-10px) scale(1.05); }
         }
         
-        .subtitle {
+        .menu-subtitle {
             font-size: 14px;
             color: #00ff88;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 0 #000, 0 0 15px rgba(0,255,136,0.8);
-            animation: glow 2s infinite;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 0 #000, 0 0 15px rgba(0, 255, 136, 0.8);
         }
         
-        @keyframes glow {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-        
-        .text {
+        .menu-text {
             font-size: 11px;
             color: #fff;
             line-height: 1.8;
@@ -286,33 +444,63 @@
             text-shadow: 2px 2px 0 #000;
         }
         
-        .text strong {
+        .menu-text strong {
             color: #ffa500;
         }
         
-        .btn {
+        .menu-btn {
             background: linear-gradient(135deg, #ff6b00 0%, #cc5500 100%);
             border: 4px solid #fff;
             border-radius: 12px;
-            padding: 15px 30px;
+            padding: 15px 35px;
             font-family: 'Press Start 2P', cursive;
             font-size: 13px;
             color: #fff;
             cursor: pointer;
             margin: 10px;
-            box-shadow: 0 5px 0 rgba(0,0,0,0.4), 0 0 20px rgba(255,107,0,0.5);
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.4), 0 0 25px rgba(255, 107, 0, 0.6);
             text-shadow: 2px 2px 0 #000;
             transition: all 0.2s;
+            display: inline-block;
+            border: none;
+            outline: none;
         }
         
-        .btn:hover {
+        .menu-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 0 rgba(0,0,0,0.4), 0 0 30px rgba(255,107,0,0.8);
+            box-shadow: 0 9px 0 rgba(0, 0, 0, 0.4), 0 0 35px rgba(255, 107, 0, 0.9);
         }
         
-        .btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 3px 0 rgba(0,0,0,0.4), 0 0 20px rgba(255,107,0,0.5);
+        .menu-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 3px 0 rgba(0, 0, 0, 0.4), 0 0 25px rgba(255, 107, 0, 0.6);
+        }
+        
+        .menu-btn.secondary {
+            background: linear-gradient(135deg, #00ff88 0%, #00cc66 100%);
+            color: #000;
+        }
+        
+        .menu-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 15px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 4px solid #ffa500;
+            border-radius: 12px;
+            color: #fff;
+            text-align: center;
+            margin: 20px auto;
+            display: block;
+            box-shadow: inset 0 0 20px rgba(255, 107, 0, 0.3);
+            outline: none;
+        }
+        
+        .menu-input:focus {
+            border-color: #00ff88;
+            box-shadow: 0 0 25px rgba(0, 255, 136, 0.6);
         }
         
         /* Cape Box */
@@ -323,24 +511,24 @@
             margin: 20px 0;
             border: 5px solid #fff;
             animation: capePulse 2.5s infinite;
-            box-shadow: 0 0 40px rgba(255,165,0,0.8);
+            box-shadow: 0 0 40px rgba(255, 165, 0, 0.8);
         }
         
         @keyframes capePulse {
             0%, 100% { 
                 transform: scale(1);
-                box-shadow: 0 0 40px rgba(255,165,0,0.8);
+                box-shadow: 0 0 40px rgba(255, 165, 0, 0.8);
             }
             50% { 
                 transform: scale(1.03);
-                box-shadow: 0 0 60px rgba(255,165,0,1);
+                box-shadow: 0 0 60px rgba(255, 165, 0, 1);
             }
         }
         
         .cape-code {
             font-size: 13px;
             font-family: 'Courier New', monospace;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.6);
             padding: 15px;
             border-radius: 10px;
             margin: 15px 0;
@@ -350,319 +538,350 @@
             text-shadow: none;
         }
         
-        /* Credits Screen */
-        .credits {
-            animation: creditsScroll 20s linear;
+        /* Ranking Table */
+        .ranking-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
         
-        @keyframes creditsScroll {
-            from { transform: translateY(100vh); }
-            to { transform: translateY(-100%); }
+        .ranking-table {
+            background: rgba(0, 0, 0, 0.8);
+            border: 4px solid #ffa500;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 25px 0;
+            max-height: 400px;
+            overflow-y: auto;
         }
         
-        .credits-line {
-            margin: 30px 0;
-            font-size: 16px;
+        .ranking-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .ranking-table th {
+            padding: 12px;
+            text-align: left;
+            font-size: 11px;
             color: #ffa500;
-            text-shadow: 3px 3px 0 #000, 0 0 15px rgba(255,165,0,0.8);
+            border-bottom: 2px solid #ff6b00;
         }
         
-        .credits-small {
+        .ranking-table td {
+            padding: 10px;
             font-size: 11px;
             color: #fff;
-            margin: 10px 0;
+            border-bottom: 1px solid rgba(255, 107, 0, 0.2);
         }
         
-        .credits-link {
-            color: #00ff88;
-            text-decoration: none;
-            cursor: pointer;
+        .ranking-table tr:hover {
+            background: rgba(255, 107, 0, 0.1);
         }
         
-        .credits-link:hover {
-            text-decoration: underline;
+        .player-row {
+            background: rgba(0, 255, 136, 0.2) !important;
+            color: #00ff88 !important;
         }
-        
-        /* Tooltip */
-        .tooltip {
-            position: fixed;
-            bottom: 200px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.95);
-            color: #ffa500;
-            padding: 12px 25px;
-            border-radius: 12px;
-            border: 3px solid #ff6b00;
-            font-size: 11px;
-            z-index: 150;
-            white-space: nowrap;
-            pointer-events: none;
-            animation: tooltipAnim 3s forwards;
-            box-shadow: 0 0 25px rgba(255,107,0,0.8);
-        }
-        
-        @keyframes tooltipAnim {
-            0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
-            15%, 85% { opacity: 1; transform: translateX(-50%) translateY(0); }
-            100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
-        }
-        
-        .watermark {
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    background: rgba(0,0,0,0.8);
-    padding: 8px 15px;
-    border-radius: 8px;
-    border: 2px solid #ff6b00;
-    font-size: 9px;
-    color: #ff9500;
-    z-index: 99;
-    box-shadow: 0 0 15px rgba(255,107,0,0.5);
-}
-
-/* Sistema de Ranking */
-.nick-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.97);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 200;
-}
-
-.nick-input-container {
-    background: linear-gradient(135deg, #2d0052 0%, #ff6b00 100%);
-    border: 6px solid #ffa500;
-    border-radius: 25px;
-    padding: 40px;
-    text-align: center;
-    box-shadow: 0 0 80px rgba(255,165,0,0.9);
-    max-width: 500px;
-}
-
-.nick-input {
-    width: 100%;
-    padding: 15px;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 14px;
-    background: rgba(0,0,0,0.7);
-    border: 4px solid #ffa500;
-    border-radius: 12px;
-    color: #fff;
-    text-align: center;
-    margin: 20px 0;
-    box-shadow: inset 0 0 20px rgba(255,107,0,0.3);
-}
-
-.nick-input:focus {
-    outline: none;
-    border-color: #00ff88;
-    box-shadow: 0 0 25px rgba(0,255,136,0.6);
-}
-
-.ranking-btn {
-    background: linear-gradient(135deg, #00ff88 0%, #00cc66 100%);
-    border: 4px solid #fff;
-    border-radius: 12px;
-    padding: 12px 25px;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 11px;
-    color: #000;
-    cursor: pointer;
-    margin: 10px;
-    box-shadow: 0 5px 0 rgba(0,0,0,0.4);
-    transition: all 0.3s;
-}
-
-.ranking-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 0 rgba(0,0,0,0.4);
-    filter: brightness(1.1);
-}
-
-.ranking-btn:active {
-    transform: translateY(2px);
-    box-shadow: 0 3px 0 rgba(0,0,0,0.4);
-}
-
-.ranking-table {
-    background: rgba(0,0,0,0.8);
-    border: 4px solid #ffa500;
-    border-radius: 15px;
-    padding: 20px;
-    margin: 25px 0;
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-.ranking-tabs {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-}
-
-@media (max-width: 768px) {
-    .nick-input-container {
-        padding: 30px 20px;
-    }
-    
-    .nick-input {
-        font-size: 12px;
-    }
-    
-    .ranking-btn {
-        font-size: 9px;
-        padding: 10px 20px;
-    }
-    
-    .ranking-table {
-        font-size: 9px;
-    }
-}
         
         .hidden {
             display: none !important;
         }
         
+        .watermark {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 2px solid #ff6b00;
+            font-size: 9px;
+            color: #ff9500;
+            z-index: 99;
+            box-shadow: 0 0 15px rgba(255, 107, 0, 0.5);
+        }
+        
         /* Responsive */
         @media (max-width: 768px) {
-            .controls, .btn-action {
+            .mobile-controls,
+            .action-buttons {
                 display: flex;
             }
-            .title {
-                font-size: 22px;
-            }
-            .subtitle {
-                font-size: 11px;
-            }
-            .text {
-                font-size: 9px;
-            }
+            
             .hud {
                 font-size: 9px;
-                padding: 10px 14px;
+                padding: 10px 15px;
             }
+            
             .inv-grid {
-                grid-template-columns: repeat(3, 48px);
+                grid-template-columns: repeat(3, 50px);
             }
+            
             .inv-slot {
-                width: 48px;
-                height: 48px;
-                font-size: 24px;
+                width: 50px;
+                height: 50px;
+                font-size: 28px;
+            }
+            
+            .menu-title {
+                font-size: 22px;
+            }
+            
+            .menu-subtitle {
+                font-size: 12px;
+            }
+            
+            .menu-text {
+                font-size: 9px;
+            }
+            
+            .menu-btn {
+                font-size: 11px;
+                padding: 12px 25px;
+            }
+            
+            .minimap {
+                width: 150px;
+                height: 110px;
+            }
+            
+            .quest-panel {
+                max-width: 250px;
+                font-size: 8px;
             }
         }
         
         @media (max-width: 480px) {
-            .title {
+            .menu-title {
                 font-size: 18px;
             }
-            .text {
-                font-size: 8px;
+            
+            .menu-content {
+                padding: 25px;
             }
+        }
+        
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a0033 0%, #2d0052 50%, #4a0080 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s;
+        }
+        
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .loading-content {
+            text-align: center;
+            max-width: 600px;
+            padding: 40px;
+        }
+        
+        .loading-content h1 {
+            color: #ff8c00;
+            font-size: 32px;
+            margin-bottom: 40px;
+            text-shadow: 4px 4px 0 #000, 0 0 20px rgba(255, 140, 0, 0.8);
+            animation: titleFloat 2s ease-in-out infinite;
+        }
+        
+        .loading-bar {
+            width: 100%;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 4px solid #ff6b00;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(255, 107, 0, 0.6);
+        }
+        
+        .loading-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b00 0%, #ffa500 50%, #ff6b00 100%);
+            background-size: 200% 100%;
+            width: 0%;
+            transition: width 0.3s;
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        .loading-text {
+            color: #00ff88;
+            font-size: 14px;
+            text-shadow: 2px 2px 0 #000, 0 0 10px rgba(0, 255, 136, 0.8);
         }
     </style>
 </head>
 <body>
+    <!-- Background Stars -->
+    <div class="bg-stars" id="bgStars"></div>
+    
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <h1>🎃 HALLOWEEN VALLEY 🎃</h1>
+            <div class="loading-bar">
+                <div class="loading-fill" id="loadingFill"></div>
+            </div>
+            <p class="loading-text" id="loadingText">Carregando recursos...</p>
+        </div>
+    </div>
+    
+    <!-- Game Container -->
     <div id="gameContainer">
         <canvas id="canvas"></canvas>
-        
-        <div class="hud">
-            🎃 <span class="hud-value" id="pumpkinCount">0</span>/5 Abóboras<br>
-            🔧 <span class="hud-value" id="currentTool">Mãos</span>
+    </div>
+    
+    <!-- HUD -->
+    <div class="hud hidden" id="hud">
+        <div class="hud-row">
+            <span class="hud-label">👤</span>
+            <span class="hud-value" id="playerName">-</span>
         </div>
-        
-        <div class="inventory">
-            <div class="inv-title">📦 INVENTÁRIO</div>
-            <div class="inv-grid" id="invGrid"></div>
-        </div>
-        
-        <div class="controls">
-            <div class="dpad">
-                <div class="btn-dpad up" data-dir="up">▲</div>
-                <div class="btn-dpad down" data-dir="down">▼</div>
-                <div class="btn-dpad left" data-dir="left">◀</div>
-                <div class="btn-dpad right" data-dir="right">▶</div>
+        <div class="hud-row">
+            <span class="hud-label">❤️</span>
+            <div class="bar-container">
+                <div class="bar-fill" id="healthBar" style="width: 100%"></div>
             </div>
+            <span class="hud-value"><span id="healthValue">100</span>/100</span>
         </div>
-        
-        <div class="btn-action" id="btnAction">USAR<br>⚡</div>
-        
-        <div class="watermark">⚡ YORUS</div>
+        <div class="hud-row">
+            <span class="hud-label">⚡</span>
+            <div class="bar-container energy-bar">
+                <div class="bar-fill" id="energyBar" style="width: 100%"></div>
+            </div>
+            <span class="hud-value"><span id="energyValue">100</span>/100</span>
+        </div>
+        <div class="hud-row">
+            <span class="hud-label">💰</span>
+            <span class="hud-value" id="goldValue">0</span>
+        </div>
+        <div class="hud-row">
+            <span class="hud-label">🎃</span>
+            <span class="hud-value"><span id="pumpkinCount">0</span>/10</span>
+        </div>
+        <div class="hud-row">
+            <span class="hud-label">⏱️</span>
+            <span class="hud-value" id="timeValue">0:00</span>
+        </div>
+    </div>
+    
+    <!-- Inventory -->
+    <div class="inventory hidden" id="inventory">
+        <div class="inv-title">📦 INVENTÁRIO</div>
+        <div class="inv-grid" id="invGrid"></div>
+    </div>
+    
+    <!-- Minimap -->
+    <div class="minimap hidden" id="minimap">
+        <div class="minimap-title">🗺️ MAPA</div>
+        <canvas id="minimapCanvas" width="180" height="120"></canvas>
+    </div>
+    
+    <!-- Quest Panel -->
+    <div class="quest-panel hidden" id="questPanel">
+        <div class="quest-title">📜 MISSÕES</div>
+        <div id="questList"></div>
+    </div>
+    
+    <!-- Mobile Controls -->
+    <div class="mobile-controls">
+        <div class="dpad">
+            <div class="btn-dpad up" data-dir="up">▲</div>
+            <div class="btn-dpad down" data-dir="down">▼</div>
+            <div class="btn-dpad left" data-dir="left">◀</div>
+            <div class="btn-dpad right" data-dir="right">▶</div>
+        </div>
+    </div>
+    
+    <div class="action-buttons">
+        <div class="btn-action" id="btnInteract">USAR<br>💬</div>
     </div>
     
     <!-- Nick Screen -->
-<div class="nick-screen" id="nickScreen">
-    <div class="nick-input-container">
-        <div class="title" style="font-size: 26px; margin-bottom: 20px;">
-            👤 SEU APELIDO
+    <div class="menu-overlay" id="nickScreen">
+        <div class="menu-content">
+            <div class="menu-title">🎃 HALLOWEEN VALLEY 🎃</div>
+            <div class="menu-subtitle">✨ Uma Aventura de Halloween ✨</div>
+            <div class="menu-text">
+                <p style="margin: 20px 0;">Digite seu nick para começar a aventura!</p>
+            </div>
+            <input 
+                type="text" 
+                id="nickInput" 
+                class="menu-input" 
+                placeholder="Seu Nick Aqui" 
+                maxlength="15"
+                autocomplete="off"
+            >
+<button class="menu-btn" onclick="submitNick()">✅ CONTINUAR</button>
+            <button class="menu-btn secondary" onclick="showRankings()">🏆 VER RANKINGS</button>
         </div>
-        <div class="text" style="margin-bottom: 15px;">
-            Digite seu nick para aparecer no ranking!
-        </div>
-        <input 
-            type="text" 
-            id="nickInput" 
-            class="nick-input" 
-            placeholder="Seu Nick Aqui" 
-            maxlength="15"
-            autocomplete="off"
-        >
-        <button class="btn" onclick="submitNick()">✅ CONTINUAR</button>
-        <button class="ranking-btn" onclick="showRankings()">
-            🏆 VER RANKINGS
-        </button>
     </div>
-</div>
-
-<!-- Start Screen -->
-<div class="overlay hidden" id="startScreen">
-        <div class="overlay-content">
-            <div class="title">🎃 PUMPKIN WEEN 🎃</div>
-            <div class="subtitle">✨ A Halloween Adventure ✨</div>
-            <div class="text">
+    
+    <!-- Start Screen -->
+    <div class="menu-overlay hidden" id="startScreen">
+        <div class="menu-content">
+            <div class="menu-title">🎃 HALLOWEEN VALLEY 🎃</div>
+            <div class="menu-subtitle">✨ A Halloween Adventure ✨</div>
+            <div class="menu-text">
                 <p style="font-size: 15px; color: #ffa500; margin: 20px 0;">🗺️ EXPLORE UM MUNDO MÁGICO!</p>
                 
                 <p><strong>🎯 SUA MISSÃO:</strong></p>
-                <p>Encontre as <strong>5 ABÓBORAS MÁGICAS</strong> escondidas pelo mapa!</p>
-                <p>Cada uma está protegida por desafios únicos...</p>
+                <p>Encontre as <strong>10 ABÓBORAS MÁGICAS</strong> escondidas pelo vale!</p>
+                <p>Interaja com NPCs, complete missões e desbloqueie segredos!</p>
                 <br>
                 
-                <p><strong>⛏️ FERRAMENTAS:</strong></p>
-                <p>🪓 <strong>Machado</strong> - Corte árvores e madeira</p>
-                <p>⛏️ <strong>Picareta</strong> - Quebre pedras e rochas</p>
-                <p>🔑 <strong>Chave</strong> - Abra portas trancadas</p>
+                <p><strong>🔧 FERRAMENTAS:</strong></p>
+                <p>🪓 <strong>Machado</strong> - Corte árvores e colete madeira</p>
+                <p>⛏️ <strong>Picareta</strong> - Quebre pedras e minere recursos</p>
+                <p>🔑 <strong>Chave</strong> - Abra portas e baús trancados</p>
+                <p>🍬 <strong>Doces</strong> - Recupere energia</p>
+                <p>🧪 <strong>Poções</strong> - Recupere vida</p>
                 <br>
                 
                 <p><strong>🎮 CONTROLES:</strong></p>
-                <p><strong>PC:</strong> Setas ↑↓←→ ou WASD • Espaço/E para usar</p>
-                <p><strong>Mobile:</strong> D-Pad e botão USAR</p>
-                <p>Clique nos itens para equipar</p>
+                <p><strong>PC:</strong> WASD ou Setas para mover • E ou Espaço para interagir</p>
+                <p><strong>Mobile:</strong> Use o D-Pad e botão de ação na tela</p>
+                <p><strong>Inventário:</strong> Clique nos itens para equipar</p>
                 <br>
                 
                 <p style="color: #00ff88; font-size: 13px; margin-top: 20px;">
-                    ⭐ Complete a missão e ganhe uma <strong>CAPA OPTIFINE</strong>! ⭐
+                    ⭐ Complete todas as missões e ganhe uma <strong>CAPA OPTIFINE EXCLUSIVA</strong>! ⭐
                 </p>
             </div>
-            <button class="btn" onclick="startGame()">🚀 COMEÇAR AVENTURA</button>
+            <button class="menu-btn" onclick="startGame()">🚀 COMEÇAR AVENTURA</button>
+            <button class="menu-btn secondary" onclick="showControls()">🎮 MAIS INFO</button>
         </div>
     </div>
     
     <!-- Victory Screen -->
-    <div class="overlay hidden" id="victoryScreen">
-        <div class="overlay-content">
-            <div class="title">🏆 PARABÉNS! 🏆</div>
-            <div class="subtitle">✨ Você completou Pumpkin Ween! ✨</div>
-            <div class="text">
+    <div class="menu-overlay hidden" id="victoryScreen">
+        <div class="menu-content">
+            <div class="menu-title">🏆 PARABÉNS! 🏆</div>
+            <div class="menu-subtitle">✨ Você completou Halloween Valley! ✨</div>
+            <div class="menu-text">
                 <p style="font-size: 17px; margin: 20px 0; color: #00ff88;">
-                    🎃 Todas as 5 abóboras mágicas foram encontradas! 🎃
+                    🎃 Todas as 10 abóboras mágicas foram encontradas! 🎃
                 </p>
                 
                 <div class="cape-box">
@@ -673,159 +892,126 @@
                         Código exclusivo de Capa Optifine:
                     </p>
                     <div class="cape-code" id="capeCode">CARREGANDO...</div>
-                    <button class="btn" onclick="copyCape()">📋 COPIAR CÓDIGO</button>
+                    <button class="menu-btn" onclick="copyCape()">📋 COPIAR CÓDIGO</button>
                     <p style="font-size: 10px; margin-top: 10px; color: #fff;">
                         ⚠️ Use este código em <strong>optifine.net/login</strong>
                     </p>
                 </div>
                 
+                <div style="background: rgba(0,0,0,0.6); padding: 20px; border-radius: 15px; margin: 20px 0; border: 3px solid #00ff88;">
+                    <p style="font-size: 14px; color: #00ff88; margin-bottom: 10px;">
+                        ⏱️ SEU TEMPO
+                    </p>
+                    <p style="font-size: 20px; color: #ffa500;" id="finalTime">0:00</p>
+                    <p style="font-size: 14px; color: #00ff88; margin: 15px 0 10px 0;">
+                        💰 PONTUAÇÃO FINAL
+                    </p>
+                    <p style="font-size: 20px; color: #ffa500;" id="finalScore">0</p>
+                </div>
+                
                 <p style="font-size: 13px; margin-top: 20px;">
-    Obrigado por jogar! 🎮
-</p>
-
-<div style="background: rgba(0,0,0,0.6); padding: 20px; border-radius: 15px; margin: 20px 0; border: 3px solid #00ff88;">
-    <p style="font-size: 14px; color: #00ff88; margin-bottom: 10px;">
-        ⏱️ SEU TEMPO
-    </p>
-    <p style="font-size: 20px; color: #ffa500;" id="finalTime">
-        0:00
-    </p>
-    <p style="font-size: 11px; color: #fff; margin-top: 15px;">
-        Seu recorde foi salvo no ranking!
-    </p>
-</div>
+                    Obrigado por jogar! 🎮
+                </p>
             </div>
-<button class="ranking-btn" onclick="showRankingsFromVictory()">
-    🏆 VER RANKINGS
-</button>
-<button class="btn" onclick="showCredits()">🎬 VER CRÉDITOS</button>
-<button class="btn" onclick="restartGame()">🔄 JOGAR NOVAMENTE</button>
+            <button class="menu-btn secondary" onclick="showRankingsFromVictory()">🏆 VER RANKINGS</button>
+            <button class="menu-btn" onclick="showCredits()">🎬 VER CRÉDITOS</button>
+            <button class="menu-btn" onclick="restartGame()">🔄 JOGAR NOVAMENTE</button>
         </div>
     </div>
     
-<!-- Rankings Screen -->
-<div class="overlay hidden" id="rankingsScreen">
-    <div class="overlay-content" style="max-width: 800px;">
-        <div class="title" style="font-size: 28px;">🏆 RANKINGS 🏆</div>
-        
-        <div class="ranking-tabs">
-            <button class="ranking-btn" onclick="switchRankingTab('speed')">
-                ⚡ MAIS RÁPIDOS
-            </button>
-            <button class="ranking-btn" onclick="switchRankingTab('pumpkins')">
-                🎃 MAIS ABÓBORAS
-            </button>
-            <button class="ranking-btn" onclick="switchRankingTab('playtime')">
-                ⏰ MAIS TEMPO
-            </button>
+    <!-- Rankings Screen -->
+    <div class="menu-overlay hidden" id="rankingsScreen">
+        <div class="menu-content" style="max-width: 900px;">
+            <div class="menu-title" style="font-size: 28px;">🏆 RANKINGS 🏆</div>
+            
+            <div class="ranking-tabs">
+                <button class="menu-btn secondary" onclick="switchRankingTab('score')">
+                    💯 PONTUAÇÃO
+                </button>
+                <button class="menu-btn secondary" onclick="switchRankingTab('speed')">
+                    ⚡ MAIS RÁPIDOS
+                </button>
+                <button class="menu-btn secondary" onclick="switchRankingTab('pumpkins')">
+                    🎃 MAIS ABÓBORAS
+                </button>
+            </div>
+            
+            <div class="ranking-table" id="rankingContent"></div>
+            
+            <button class="menu-btn" onclick="closeRankings()">🔙 VOLTAR</button>
         </div>
-        
-        <div class="ranking-table" id="rankingContent">
-            <!-- Conteúdo dinâmico -->
-        </div>
-        
-        <button class="btn" onclick="closeRankings()">🔙 VOLTAR</button>
     </div>
-</div>
-
+    
     <!-- Credits Screen -->
-    <div class="overlay hidden" id="creditsScreen">
-        <div class="overlay-content" style="background: linear-gradient(180deg, #000000 0%, #1a0033 50%, #2d0052 100%);">
-            <div class="credits">
-                <div class="credits-line" style="font-size: 36px; margin-bottom: 50px;">
-                    🎃 PUMPKIN WEEN 🎃
-                </div>
+    <div class="menu-overlay hidden" id="creditsScreen">
+        <div class="menu-content" style="max-width: 700px;">
+            <div class="menu-title">🎬 CRÉDITOS 🎬</div>
+            <div class="menu-text" style="font-size: 12px; line-height: 2;">
+                <p style="font-size: 24px; color: #ffa500; margin: 40px 0;">
+                    🎃 HALLOWEEN VALLEY 🎃
+                </p>
                 
-                <div class="credits-line" style="margin-top: 80px;">
-                    ═══════════════════
-                </div>
+                <p style="margin: 30px 0;">═══════════════════</p>
                 
-                <div class="credits-line" style="font-size: 20px; margin: 50px 0;">
-                    CRIADO POR
-                </div>
-                <div class="credits-line" style="font-size: 28px; color: #00ff88;">
+                <p style="font-size: 16px; color: #00ff88; margin: 20px 0;">
+                    DESENVOLVIDO POR
+                </p>
+                <p style="font-size: 20px; color: #ffa500;">
                     VEGOTS
-                </div>
+                </p>
                 
-                <div class="credits-line" style="margin: 80px 0;">
-                    ═══════════════════
-                </div>
+                <p style="margin: 30px 0;">═══════════════════</p>
                 
-                <div class="credits-line" style="font-size: 18px; margin: 50px 0;">
+                <p style="font-size: 16px; color: #00ff88; margin: 20px 0;">
                     EMPRESA
-                </div>
-                <div class="credits-line" style="font-size: 26px; color: #ffa500;">
+                </p>
+                <p style="font-size: 20px; color: #ffa500;">
                     ⚡ YORUS ⚡
-                </div>
+                </p>
                 
-                <div class="credits-line" style="margin: 80px 0;">
-                    ═══════════════════
-                </div>
+                <p style="margin: 30px 0;">═══════════════════</p>
                 
-                <div class="credits-line" style="font-size: 16px; margin: 40px 0;">
+                <p style="font-size: 14px; margin: 20px 0;">
                     JUNTE-SE À COMUNIDADE
-                </div>
-                <div class="credits-small">
-                    <a href="https://discord.gg/ta6vzcqCum" target="_blank" class="credits-link">
+                </p>
+                <p>
+                    <a href="https://discord.gg/ta6vzcqCum" target="_blank" style="color: #00ff88; text-decoration: none;">
                         🎮 discord.gg/ta6vzcqCum
                     </a>
-                </div>
+                </p>
                 
-                <div class="credits-line" style="margin: 100px 0;">
-                    ═══════════════════
-                </div>
+                <p style="margin: 30px 0;">═══════════════════</p>
                 
-                <div class="credits-line" style="font-size: 14px;">
-                    AGRADECIMENTOS ESPECIAIS
-                </div>
-                <div class="credits-small" style="margin: 30px 0;">
-                    A todos os jogadores que<br>
-                    embarcaram nesta aventura!
-                </div>
+                <p style="font-size: 14px; margin: 20px 0;">
+                    AGRADECIMENTOS
+                </p>
+                <p style="font-size: 10px;">
+                    A todos os jogadores que embarcaram<br>
+                    nesta aventura de Halloween!
+                </p>
                 
-                <div class="credits-line" style="margin: 100px 0;">
-                    ═══════════════════
-                </div>
+                <p style="margin: 30px 0;">═══════════════════</p>
                 
-                <div class="credits-line" style="font-size: 18px; margin: 50px 0;">
-                    TECNOLOGIAS
-                </div>
-                <div class="credits-small">
-                    HTML5 Canvas<br>
-                    JavaScript<br>
-                    Pixel Art
-                </div>
-                
-                <div class="credits-line" style="margin: 100px 0;">
-                    ═══════════════════
-                </div>
-                
-                <div class="credits-line" style="font-size: 22px; color: #00ff88; margin: 60px 0;">
+                <p style="font-size: 18px; color: #00ff88; margin: 40px 0;">
                     🎃 FELIZ HALLOWEEN! 🎃
-                </div>
+                </p>
                 
-                <div class="credits-line" style="margin: 80px 0; font-size: 14px;">
-                    © 2025 YORUS
-                </div>
-                
-                <div class="credits-line" style="margin-top: 150px; font-size: 16px;">
-                    ═══════════════════
-                </div>
-                
-                <div class="credits-small" style="margin: 50px 0; font-size: 12px; color: #888;">
-    Obrigado por jogar!
-</div>
+                <p style="font-size: 10px; color: #888; margin-top: 40px;">
+                    © 2025 YORUS - Todos os direitos reservados
+                </p>
             </div>
-            <button class="btn" onclick="closeCredits()" style="margin-top: 50px;">🔙 VOLTAR</button>
+            <button class="menu-btn" onclick="closeCredits()">🔙 VOLTAR</button>
         </div>
     </div>
+    
+    <div class="watermark">⚡ YORUS - Created by VEGOTS</div>
     
     <script>
         'use strict';
         
-        // ===== SISTEMA DE CAPAS SEQUENCIAL =====
+        // ===== SISTEMA DE CAPAS =====
         (function(){
-            const codes=[
+            const codes = [
                 'a2FtaWwtYnVqYWxza2lAbzIucGw6NzVURTVYVlJISA==',
                 'bGlsc2l4aW5va2M3QGdtYWlsLmNvbTpUQ085N1VRMjdX',
                 'aW94ZGFyazM3Mnl0QGdtYWlsLmNvbTo4SE5UU0Q2MzVF',
@@ -939,102 +1125,117 @@
             });
         })();
         
+        // ===== SISTEMA DE RANKING =====
+        class RankingSystem {
+            static saveScore(nick, time, pumpkins, score) {
+                const rankings = this.getRankings();
+                const entry = {
+                    nick: nick,
+                    time: time,
+                    pumpkins: pumpkins,
+                    score: score,
+                    date: new Date().toISOString(),
+                    completed: pumpkins >= 10
+                };
+                
+                rankings.push(entry);
+                rankings.sort((a, b) => b.score - a.score);
+                localStorage.setItem('halloweenValleyRankings', JSON.stringify(rankings.slice(0, 100)));
+            }
+            
+            static getRankings() {
+                const data = localStorage.getItem('halloweenValleyRankings');
+                return data ? JSON.parse(data) : [];
+            }
+            
+            static getTopScore() {
+                return this.getRankings()
+                    .sort((a, b) => b.score - a.score)
+                    .slice(0, 10);
+            }
+            
+            static getTopSpeed() {
+                return this.getRankings()
+                    .filter(s => s.completed)
+                    .sort((a, b) => a.time - b.time)
+                    .slice(0, 10);
+            }
+            
+            static getTopPumpkins() {
+                return this.getRankings()
+                    .sort((a, b) => b.pumpkins - a.pumpkins)
+                    .slice(0, 10);
+            }
+            
+            static formatTime(ms) {
+                const seconds = Math.floor(ms / 1000);
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+            }
+        }
+        
         // ===== GAME SETUP =====
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
+        const minimapCanvas = document.getElementById('minimapCanvas');
+        const minimapCtx = minimapCanvas.getContext('2d');
         
-        // Configuração de tela cheia responsiva
-        let TILE_SIZE = 32;
-        let VIEWPORT_WIDTH = 20;
-        let VIEWPORT_HEIGHT = 15;
-        let CANVAS_WIDTH, CANVAS_HEIGHT;
-        
-        function resizeCanvas() {
-            const maxWidth = window.innerWidth;
-            const maxHeight = window.innerHeight;
-            const aspectRatio = VIEWPORT_WIDTH / VIEWPORT_HEIGHT;
-            
-            if (maxWidth / maxHeight > aspectRatio) {
-                CANVAS_HEIGHT = maxHeight;
-                CANVAS_WIDTH = CANVAS_HEIGHT * aspectRatio;
-            } else {
-                CANVAS_WIDTH = maxWidth;
-                CANVAS_HEIGHT = CANVAS_WIDTH / aspectRatio;
-            }
-            
-            canvas.width = VIEWPORT_WIDTH * TILE_SIZE;
-            canvas.height = VIEWPORT_HEIGHT * TILE_SIZE;
-            canvas.style.width = CANVAS_WIDTH + 'px';
-            canvas.style.height = CANVAS_HEIGHT + 'px';
-        }
-        
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
+        // Configuração
+        const TILE_SIZE = 32;
+const MAP_WIDTH = 60;
+const MAP_HEIGHT = 45;
+
+// Calcular viewport baseado no tamanho da tela
+let VIEWPORT_WIDTH = Math.floor(window.innerWidth / TILE_SIZE);
+let VIEWPORT_HEIGHT = Math.floor(window.innerHeight / TILE_SIZE);
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// Atualizar viewport ao redimensionar
+window.addEventListener('resize', () => {
+    VIEWPORT_WIDTH = Math.floor(window.innerWidth / TILE_SIZE);
+    VIEWPORT_HEIGHT = Math.floor(window.innerHeight / TILE_SIZE);
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
         
         // ===== GAME STATE =====
-const game = {
-    state: 'menu',
-    pumpkinsFound: 0,
-    currentTool: null,
-    keys: {},
-    touch: {up: false, down: false, left: false, right: false},
-    camera: {x: 0, y: 0},
-    showTooltip: null,
-    lastBlockMessage: 0,
-    playerNick: '',
-    startTime: 0,
-    endTime: 0
-};
-
-// ===== SISTEMA DE RANKING =====
-const RankingSystem = {
-    saveScore(nick, time, pumpkins) {
-        const rankings = this.getRankings();
-        const score = {
-            nick: nick,
-            time: time,
-            pumpkins: pumpkins,
-            date: new Date().toISOString(),
-            completed: pumpkins >= 5
+        const game = {
+            state: 'menu',
+            playerNick: '',
+            startTime: 0,
+            elapsedTime: 0,
+            score: 0,
+            pumpkinsFound: 0,
+            gold: 0,
+            keys: {},
+            touch: { up: false, down: false, left: false, right: false },
+            camera: { x: 0, y: 0 },
+            selectedTool: null,
+            quests: [],
+            npcs: [],
+            lastUpdate: Date.now()
         };
         
-        rankings.push(score);
-        localStorage.setItem('pumpkinRankings', JSON.stringify(rankings));
-    },
-    
-    getRankings() {
-        const data = localStorage.getItem('pumpkinRankings');
-        return data ? JSON.parse(data) : [];
-    },
-    
-    getTopSpeed() {
-        return this.getRankings()
-            .filter(s => s.completed)
-            .sort((a, b) => a.time - b.time)
-            .slice(0, 10);
-    },
-    
-    getTopPumpkins() {
-        return this.getRankings()
-            .sort((a, b) => b.pumpkins - a.pumpkins)
-            .slice(0, 10);
-    },
-    
-    getTopPlaytime() {
-        return this.getRankings()
-            .sort((a, b) => b.time - a.time)
-            .slice(0, 10);
-    },
-    
-    formatTime(ms) {
-        const seconds = Math.floor(ms / 1000);
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = seconds % 60;
-        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-    }
-};
+        // ===== PLAYER =====
+        const player = {
+            x: 10,
+            y: 10,
+            speed: 0.12,
+            health: 100,
+            maxHealth: 100,
+            energy: 100,
+            maxEnergy: 100,
+            direction: 'down',
+            animFrame: 0,
+            animTimer: 0,
+            inventory: [],
+            isMoving: false
+        };
         
-        // ===== MAPA DO MUNDO =====
+        // ===== TILES =====
         const TILES = {
             GRASS: 0,
             WATER: 1,
@@ -1046,124 +1247,251 @@ const RankingSystem = {
             CAVE: 7,
             DOOR: 8,
             FENCE: 9,
-            HOUSE: 10
+            HOUSE_WALL: 10,
+            HOUSE_ROOF: 11,
+            FLOOR: 12,
+            PATH: 13,
+            FLOWER: 14,
+            BUSH: 15
         };
         
-        // Mapa 40x30 tiles
-const worldMap = [
-    [1,1,1,1,1,1,1,1,1,1,2,2,0,0,0,4,0,0,0,0,0,0,4,0,0,0,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
-    [1,1,1,1,1,1,1,1,1,2,2,2,0,0,4,4,4,0,0,0,0,0,0,0,0,0,3,3,3,3,3,5,3,3,5,3,3,3,3,3],
-    [1,1,1,1,1,1,1,1,2,2,2,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,3,3,3,3,3,5,3,3,3],
-    [1,1,1,1,1,1,1,2,2,2,0,0,0,0,0,0,0,0,0,9,9,9,9,0,0,0,3,3,3,3,3,7,3,3,3,3,3,3,3,3],
-    [1,1,1,1,1,1,2,2,2,0,0,0,0,0,0,0,0,0,0,9,0,0,9,0,0,0,3,3,5,3,3,3,3,3,5,3,3,3,3,3],
-    [1,1,1,1,1,2,2,0,0,0,0,4,0,0,0,0,0,0,0,9,0,0,9,0,0,0,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
-    [1,1,1,1,2,2,0,0,0,0,0,0,0,0,4,0,0,0,0,9,9,8,9,0,0,0,0,3,3,3,3,3,3,3,3,3,3,3,3,3],
-    [1,1,1,2,2,0,0,0,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,3,3,3,3,3],
-    [1,1,2,2,0,0,0,0,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,3,3],
-    [1,2,2,0,0,0,0,0,0,4,0,0,0,0,0,6,6,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3],
-    [2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,6,6,0,0,0,0,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3],
-    [2,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,0,3],
-    [0,0,0,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,4,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,5,5,0,0,0,0,0,4,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,4,0,0,0],
-    [4,0,0,0,0,0,0,6,6,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0],
-    [4,4,0,0,0,0,0,6,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,4,4,4,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,5,0,0,0],
-    [0,0,0,0,6,0,0,0,0,0,0,0,4,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,0],
-    [0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,6,6,0,0,0,0,0,0,0,0,0,0,5,0,0],
-    [0,0,4,0,0,0,0,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,6,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,4,4,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0],
-    [0,0,4,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,4,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,0,0,0,0,0,6,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-];
+        // ===== WORLD MAP GENERATION =====
+        function generateWorld() {
+            const world = [];
+            for (let y = 0; y < MAP_HEIGHT; y++) {
+                const row = [];
+                for (let x = 0; x < MAP_WIDTH; x++) {
+                    // Border
+                    if (x === 0 || x === MAP_WIDTH - 1 || y === 0 || y === MAP_HEIGHT - 1) {
+row.push(TILES.WATER);
+                    }
+                    // Water area (top-left)
+                    else if (x < 8 && y < 8) {
+                        row.push(Math.random() > 0.3 ? TILES.WATER : TILES.SAND);
+                    }
+                    // Mountain area (top-right)
+                    else if (x > MAP_WIDTH - 15 && y < 15) {
+                        if (Math.random() > 0.6) {
+                            row.push(TILES.STONE);
+                        } else if (Math.random() > 0.7) {
+                            row.push(TILES.ROCK);
+                        } else {
+                            row.push(TILES.GRASS);
+                        }
+                    }
+                    // Forest area (bottom-left)
+                    else if (x < 20 && y > MAP_HEIGHT - 15) {
+                        if (Math.random() > 0.5) {
+                            row.push(TILES.TREE);
+                        } else {
+                            row.push(TILES.GRASS);
+                        }
+                    }
+                    // Path
+                    else if ((x === 15 && y > 10 && y < MAP_HEIGHT - 5) || 
+                             (y === 22 && x > 10 && x < 45)) {
+                        row.push(TILES.PATH);
+                    }
+                    // Random decorations
+                    else {
+                        const rand = Math.random();
+                        if (rand > 0.95) {
+                            row.push(TILES.TREE);
+                        } else if (rand > 0.92) {
+                            row.push(TILES.ROCK);
+                        } else if (rand > 0.88) {
+                            row.push(TILES.FLOWER);
+                        } else if (rand > 0.85) {
+                            row.push(TILES.BUSH);
+                        } else {
+                            row.push(TILES.GRASS);
+                        }
+                    }
+                }
+                world.push(row);
+            }
+            
+            // Add houses (com espaçamento melhor)
+addHouse(world, 25, 15, 5, 4);
+addHouse(world, 36, 10, 6, 5);
+addHouse(world, 18, 30, 4, 4);
+            
+            // Add cave entrance
+            world[8][MAP_WIDTH - 10] = TILES.CAVE;
+            
+            return world;
+        }
         
-        const MAP_WIDTH = worldMap[0].length;
-        const MAP_HEIGHT = worldMap.length;
+        function addHouse(world, startX, startY, width, height) {
+    // Roof
+    for (let y = startY; y < startY + 2; y++) {
+        for (let x = startX; x < startX + width; x++) {
+            if (x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT) {
+                world[y][x] = TILES.HOUSE_ROOF;
+            }
+        }
+    }
+    // Walls
+    for (let y = startY + 2; y < startY + height; y++) {
+        for (let x = startX; x < startX + width; x++) {
+            if (x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT) {
+                world[y][x] = TILES.HOUSE_WALL;
+            }
+        }
+    }
+    // Door (FORA da casa)
+    const doorX = startX + Math.floor(width / 2);
+    const doorY = startY + height; // MUDEI PARA FICAR DO LADO DE FORA
+    if (doorX >= 0 && doorX < MAP_WIDTH && doorY >= 0 && doorY < MAP_HEIGHT) {
+        world[doorY][doorX] = TILES.DOOR;
+    }
+    // Interior da casa (abaixo da parede, não acessível sem chave)
+    for (let y = startY + 2; y < startY + height - 1; y++) {
+        for (let x = startX + 1; x < startX + width - 1; x++) {
+            if (x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT) {
+                world[y][x] = TILES.FLOOR;
+            }
+        }
+    }
+}
         
-        // ===== PLAYER =====
-        const player = {
-            x: 5,
-            y: 10,
-            speed: 0.08,  // REDUZIDO de 0.15 para 0.08 (mais lento)
-            inventory: []
-        };
+        const worldMap = generateWorld();
         
-        // ===== ITEMS & PUMPKINS =====
+        // ===== ITEMS & COLLECTIBLES =====
 const items = [
-    {x: 17, y: 8, type: 'axe', emoji: '🪓', collected: false, name: 'Machado'},
-    {x: 26, y: 2, type: 'pickaxe', emoji: '⛏️', collected: false, name: 'Picareta'},
-    {x: 7, y: 16, type: 'key', emoji: '🔑', collected: false, name: 'Chave'},
+    { x: 12, y: 23, type: 'axe', emoji: '🪓', name: 'Machado', collected: false },
+    { x: 50, y: 14, type: 'pickaxe', emoji: '⛏️', name: 'Picareta', collected: false }, // MOVIDA 2 BLOCOS PARA BAIXO
+    { x: 23, y: 20, type: 'key', emoji: '🔑', name: 'Chave', collected: false },
+    { x: 18, y: 28, type: 'candy', emoji: '🍬', name: 'Doce', collected: false, stackable: true },
+    { x: 32, y: 24, type: 'candy', emoji: '🍬', name: 'Doce', collected: false, stackable: true },
+    { x: 40, y: 30, type: 'potion', emoji: '🧪', name: 'Poção', collected: false, stackable: true },
+    { x: 15, y: 38, type: 'potion', emoji: '🧪', name: 'Poção', collected: false, stackable: true },
 ];
 
 const pumpkins = [
-    {x: 21, y: 4, collected: false, requires: 'key', name: 'Abóbora da Casa'},
-    {x: 31, y: 3, collected: false, requires: 'pickaxe', name: 'Abóbora da Caverna'},
-    {x: 4, y: 12, collected: false, requires: 'axe', name: 'Abóbora da Floresta'},
-    {x: 26, y: 24, collected: false, requires: null, name: 'Abóbora Escondida'},
-    {x: 3, y: 8, collected: false, requires: null, name: 'Abóbora da Praia'}
+    { x: 28, y: 22, name: 'Abóbora da Casa', collected: false, requires: 'key' }, // AJUSTADA
+    { x: 54, y: 10, name: 'Abóbora da Caverna', collected: false, requires: 'pickaxe' },
+    { x: 8, y: 40, name: 'Abóbora da Floresta', collected: false, requires: 'axe' },
+    { x: 44, y: 36, name: 'Abóbora Escondida', collected: false, requires: null },
+    { x: 6, y: 22, name: 'Abóbora da Praia', collected: false, requires: null },
+    { x: 38, y: 14, name: 'Abóbora do Campo', collected: false, requires: null }, // AJUSTADA
+    { x: 20, y: 34, name: 'Abóbora da Varanda', collected: false, requires: 'key' },
+    { x: 50, y: 28, name: 'Abóbora Perdida', collected: false, requires: null },
+    { x: 34, y: 8, name: 'Abóbora das Montanhas', collected: false, requires: 'pickaxe' },
+    { x: 10, y: 14, name: 'Abóbora da Margem', collected: false, requires: null }
 ];
         
+        // ===== NPCs =====
+        const npcs = [
+            {
+                x: 16, y: 22,
+                name: 'Bruxa Morgana',
+                emoji: '🧙‍♀️',
+                color: '#9b59b6',
+                dialogue: [
+                    'Bem-vindo ao Halloween Valley!',
+                    'Procuro 10 abóboras mágicas perdidas...',
+                    'Você pode me ajudar a encontrá-las?'
+                ],
+                quest: 'find_pumpkins',
+                questGiven: false
+            },
+            {
+                x: 26, y: 18,
+                name: 'Fantasma Fred',
+                emoji: '👻',
+                color: '#ecf0f1',
+                dialogue: [
+                    'Buuu! Hehe, assustei você?',
+                    'Dizem que há tesouros escondidos nas casas...',
+                    'Mas você vai precisar de chaves!'
+                ],
+                quest: null,
+                questGiven: false
+            },
+            {
+                x: 36, y: 13,
+                name: 'Esqueleto Sam',
+                emoji: '💀',
+                color: '#95a5a6',
+                dialogue: [
+                    'Rattles! Olá viajante!',
+                    'Cuidado com as montanhas ao norte!',
+                    'Você vai precisar de uma picareta resistente.'
+                ],
+                quest: null,
+                questGiven: false
+            },
+            {
+                x: 12, y: 35,
+                name: 'Vampiro Victor',
+                emoji: '🧛',
+                color: '#e74c3c',
+                dialogue: [
+                    'A floresta é perigosa à noite...',
+                    'Um machado seria útil para abrir caminho.',
+                    'Boa sorte, mortal!'
+                ],
+                quest: null,
+                questGiven: false
+            }
+        ];
+        
         // ===== COLLISION SYSTEM =====
-        const solidTiles = [TILES.STONE, TILES.TREE, TILES.ROCK, TILES.WOOD, TILES.CAVE, TILES.DOOR, TILES.FENCE, TILES.HOUSE];
-// REMOVIDO TILES.WATER - agora pode entrar na água
+        const solidTiles = [
+            TILES.WATER, TILES.STONE, TILES.TREE, TILES.ROCK, 
+            TILES.WOOD, TILES.FENCE, TILES.HOUSE_WALL, TILES.HOUSE_ROOF
+        ];
+        
         function getTile(x, y) {
             const col = Math.floor(x);
             const row = Math.floor(y);
-            if (row < 0 || row >= MAP_HEIGHT || col < 0 || col >= MAP_WIDTH) return TILES.STONE;
+            if (row < 0 || row >= MAP_HEIGHT || col < 0 || col >= MAP_WIDTH) {
+                return TILES.WATER;
+            }
             return worldMap[row][col];
         }
         
         function canMove(x, y) {
-    // Verificar 4 cantos do player
-    const margin = 0.15;
-    const corners = [
-        {x: x + margin, y: y + margin},
-        {x: x + 0.85, y: y + margin},
-        {x: x + margin, y: y + 0.85},
-        {x: x + 0.85, y: y + 0.85}
-    ];
-    
-    for (let corner of corners) {
-        const tile = getTile(corner.x, corner.y);
-        
-        // Verificar cada tipo de tile sólido
-        if (tile === TILES.WOOD) return false;
-        if (tile === TILES.FENCE) return false;
-        if (tile === TILES.HOUSE) return false;
-        
-        // STONE (montanha) - só passa se tiver picareta
-        if (tile === TILES.STONE) {
-            if (!hasItem('pickaxe')) return false;
+            const margin = 0.2;
+            const corners = [
+                { x: x + margin, y: y + margin },
+                { x: x + 0.8, y: y + margin },
+                { x: x + margin, y: y + 0.8 },
+                { x: x + 0.8, y: y + 0.8 }
+            ];
+            
+            for (let corner of corners) {
+                const tile = getTile(corner.x, corner.y);
+                
+                // Check solid tiles
+                if (tile === TILES.STONE || tile === TILES.ROCK) {
+                    if (!hasItem('pickaxe')) return false;
+                }
+                
+                if (tile === TILES.TREE) {
+                    if (!hasItem('axe')) return false;
+                }
+                
+                if (tile === TILES.DOOR) {
+                    if (!hasItem('key')) return false;
+                }
+                
+                if (tile === TILES.CAVE) {
+                    if (!hasItem('pickaxe')) return false;
+                }
+                
+                if (solidTiles.includes(tile) && 
+                    tile !== TILES.STONE && 
+                    tile !== TILES.ROCK && 
+                    tile !== TILES.TREE && 
+                    tile !== TILES.DOOR && 
+                    tile !== TILES.CAVE) {
+                    return false;
+                }
+            }
+            return true;
         }
-        
-        // Pedra - só passa se tiver picareta
-        if (tile === TILES.ROCK) {
-            if (!hasItem('pickaxe')) return false;
-        }
-        
-        // Árvore - só passa se tiver machado
-        if (tile === TILES.TREE) {
-            if (!hasItem('axe')) return false;
-        }
-        
-        // Porta - só passa se tiver chave
-        if (tile === TILES.DOOR) {
-            if (!hasItem('key')) return false;
-        }
-        
-        // Caverna - só passa se tiver picareta
-        if (tile === TILES.CAVE) {
-            if (!hasItem('pickaxe')) return false;
-        }
-    }
-    return true;
-}
         
         // ===== INVENTORY SYSTEM =====
         function hasItem(type) {
@@ -1171,32 +1499,65 @@ const pumpkins = [
         }
         
         function addItem(item) {
-            player.inventory.push(item);
+            // Check if stackable
+            if (item.stackable) {
+                const existing = player.inventory.find(i => i.type === item.type);
+                if (existing) {
+                    existing.count = (existing.count || 1) + 1;
+                } else {
+                    player.inventory.push({ ...item, count: 1 });
+                }
+            } else {
+                player.inventory.push({ ...item, count: 1 });
+            }
+            
             renderInventory();
-            showTooltip(`Coletou: ${item.name}!`);
+            showTooltip(`✅ Coletou: ${item.name}!`);
+            updateScore(50);
         }
         
-        function selectTool(index) {
-    if (index < player.inventory.length) {
-        game.currentTool = player.inventory[index];
-        document.getElementById('currentTool').textContent = game.currentTool.name;
-        renderInventory();
+        function useItem(index) {
+            const item = player.inventory[index];
+            if (!item) return;
+            
+            if (item.type === 'candy') {
+                player.energy = Math.min(player.maxEnergy, player.energy + 20);
+                updateHUD();
+                showTooltip('🍬 +20 Energia!');
+                removeItemFromInventory(index);
+                updateScore(10);
+            } else if (item.type === 'potion') {
+                player.health = Math.min(player.maxHealth, player.health + 30);
+                updateHUD();
+                showTooltip('🧪 +30 Vida!');
+                removeItemFromInventory(index);
+                updateScore(10);
+            } else {
+                // Equip tool
+                game.selectedTool = item;
+                renderInventory();
+                showTooltip(`🔧 ${item.name} equipado!`);
+            }
+        }
         
-        // Feedback ao equipar
-        const messages = {
-            'axe': '🪓 Machado equipado! Agora pode cortar árvores!',
-            'pickaxe': '⛏️ Picareta equipada! Agora pode quebrar pedras e entrar em cavernas!',
-            'key': '🔑 Chave equipada! Agora pode abrir portas!'
-        };
-        showTooltip(messages[game.currentTool.type] || `${game.currentTool.name} equipado!`);
-    }
-}
+        function removeItemFromInventory(index) {
+            const item = player.inventory[index];
+            if (item.count > 1) {
+                item.count--;
+            } else {
+                player.inventory.splice(index, 1);
+                if (game.selectedTool && game.selectedTool.type === item.type) {
+                    game.selectedTool = null;
+                }
+            }
+            renderInventory();
+        }
         
         function renderInventory() {
             const grid = document.getElementById('invGrid');
             grid.innerHTML = '';
             
-            for (let i = 0; i < 6; i++) {
+            for (let i = 0; i < 12; i++) {
                 const slot = document.createElement('div');
                 slot.className = 'inv-slot';
                 
@@ -1204,11 +1565,19 @@ const pumpkins = [
                     const item = player.inventory[i];
                     slot.classList.add('has-item');
                     slot.textContent = item.emoji;
-                    slot.onclick = () => selectTool(i);
                     
-                    if (game.currentTool && game.currentTool.type === item.type) {
+                    if (item.count > 1) {
+                        const count = document.createElement('div');
+                        count.className = 'inv-count';
+                        count.textContent = item.count;
+                        slot.appendChild(count);
+                    }
+                    
+                    if (game.selectedTool && game.selectedTool.type === item.type) {
                         slot.classList.add('selected');
                     }
+                    
+                    slot.onclick = () => useItem(i);
                 }
                 
                 grid.appendChild(slot);
@@ -1220,297 +1589,529 @@ const pumpkins = [
             const px = x * TILE_SIZE;
             const py = y * TILE_SIZE;
             
+            ctx.save();
+            
             switch(tile) {
                 case TILES.GRASS:
+                    // Base grass
                     ctx.fillStyle = '#4a7c3b';
                     ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-                    // Detalhes de grama
+                    // Texture
                     ctx.fillStyle = '#5a8c4b';
-                    for (let i = 0; i < 3; i++) {
-                        ctx.fillRect(px + (i * 10) + 2, py + 20, 2, 4);
+                    for (let i = 0; i < 4; i++) {
+                        const tx = px + Math.random() * TILE_SIZE;
+                        const ty = py + Math.random() * TILE_SIZE;
+                        ctx.fillRect(tx, ty, 2, 3);
                     }
                     break;
                     
                 case TILES.WATER:
                     ctx.fillStyle = '#4a90e2';
                     ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-                    // Ondas
+                    // Waves
                     ctx.fillStyle = '#6ab0ff';
-                    ctx.fillRect(px + 4, py + 8, 8, 2);
-                    ctx.fillRect(px + 18, py + 16, 8, 2);
+                    const waveOffset = Math.sin(Date.now() / 500 + x + y) * 2;
+                    ctx.fillRect(px + 4, py + 12 + waveOffset, 10, 2);
+                    ctx.fillRect(px + 18, py + 20 + waveOffset, 10, 2);
                     break;
                     
                 case TILES.SAND:
                     ctx.fillStyle = '#e8d4a0';
                     ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-                    // Textura
+                    // Texture
                     ctx.fillStyle = '#d4c090';
-                    ctx.fillRect(px + 8, py + 8, 2, 2);
-                    ctx.fillRect(px + 20, py + 16, 2, 2);
+                    for (let i = 0; i < 3; i++) {
+                        ctx.fillRect(px + Math.random() * TILE_SIZE, py + Math.random() * TILE_SIZE, 2, 2);
+                    }
                     break;
                     
                 case TILES.STONE:
                     ctx.fillStyle = '#6b6b6b';
                     ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-                    // Detalhes
+                    // Details
                     ctx.fillStyle = '#555';
-                    ctx.fillRect(px + 4, py + 4, 10, 10);
-                    ctx.fillRect(px + 18, py + 14, 8, 8);
+                    ctx.fillRect(px + 6, py + 6, 10, 10);
+                    ctx.fillRect(px + 18, py + 16, 8, 8);
+                    ctx.fillStyle = '#808080';
+                    ctx.fillRect(px + 8, py + 8, 4, 4);
                     break;
                     
                 case TILES.TREE:
-                    // Base de grama
+                    // Grass base
                     ctx.fillStyle = '#4a7c3b';
                     ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-                    // Tronco
+                    // Trunk
                     ctx.fillStyle = '#6b4423';
-                    ctx.fillRect(px + 12, py + 16, 8, 16);
-                    // Copa
+                    ctx.fillRect(px + 12, py + 18, 8, 14);
+                    // Leaves (layered circles)
                     ctx.fillStyle = '#2d5016';
                     ctx.beginPath();
-                    ctx.arc(px + 16, py + 14, 12, 0, Math.PI * 2);
+                    ctx.arc(px + 16, py + 16, 10, 0, Math.PI * 2);
                     ctx.fill();
                     ctx.fillStyle = '#3a6020';
                     ctx.beginPath();
-                    ctx.arc(px + 16, py + 12, 8, 0, Math.PI * 2);
+                    ctx.arc(px + 16, py + 14, 8, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#4a7030';
+                    ctx.beginPath();
+                    ctx.arc(px + 16, py + 12, 6, 0, Math.PI * 2);
                     ctx.fill();
                     break;
                     
                 case TILES.ROCK:
-                    // Base de grama
+                    // Grass base
                     ctx.fillStyle = '#4a7c3b';
                     ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-                    // Pedra
+                    // Rock
                     ctx.fillStyle = '#8b8b8b';
-                    ctx.fillRect(px + 8, py + 12, 16, 14);
+                    ctx.beginPath();
+                    ctx.moveTo(px + 16, py + 10);
+                    ctx.lineTo(px + 24, py + 20);
+                    ctx.lineTo(px + 20, py + 28);
+                    ctx.lineTo(px + 12, py + 28);
+                    ctx.lineTo(px + 8, py + 20);
+                    ctx.closePath();
+                    ctx.fill();
+                    // Highlight
                     ctx.fillStyle = '#a0a0a0';
-                    ctx.fillRect(px + 10, py + 14, 8, 8);
+                    ctx.beginPath();
+                    ctx.moveTo(px + 16, py + 10);
+                    ctx.lineTo(px + 20, py + 16);
+                    ctx.lineTo(px + 16, py + 18);
+                    ctx.lineTo(px + 12, py + 16);
+                    ctx.closePath();
+                    ctx.fill();
                     break;
                     
                 case TILES.WOOD:
-                    // Base de grama
+                    // Grass base
                     ctx.fillStyle = '#4a7c3b';
                     ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-                    // Madeira empilhada
+                    // Wood pile
                     ctx.fillStyle = '#6b4423';
-                    ctx.fillRect(px + 6, py + 14, 20, 8);
-                    ctx.fillRect(px + 6, py + 20, 20, 8);
+                    ctx.fillRect(px + 6, py + 16, 20, 6);
+                    ctx.fillRect(px + 6, py + 22, 20, 6);
                     ctx.fillStyle = '#8b5a33';
-                    ctx.fillRect(px + 8, py + 16, 4, 4);
-                    ctx.fillRect(px + 20, py + 22, 4, 4);
+                    ctx.fillRect(px + 8, py + 18, 4, 4);
+                    ctx.fillRect(px + 18, py + 24, 4, 4);
                     break;
                     
                 case TILES.CAVE:
-                    // Montanha
+                    // Mountain
                     ctx.fillStyle = '#5a5a5a';
                     ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
                     ctx.fillStyle = '#4a4a4a';
-                    ctx.fillRect(px + 4, py + 4, 24, 24);
-                    // Entrada da caverna
+                    ctx.beginPath();
+                    ctx.moveTo(px + 16, py + 4);
+                    ctx.lineTo(px + 28, py + 28);
+                    ctx.lineTo(px + 4, py + 28);
+                    ctx.closePath();
+                    ctx.fill();
+                    // Cave entrance
                     ctx.fillStyle = '#1a1a1a';
                     ctx.beginPath();
-                    ctx.arc(px + 16, py + 20, 8, 0, Math.PI * 2);
+                    ctx.arc(px + 16, py + 22, 8, 0, Math.PI);
                     ctx.fill();
                     break;
                     
                 case TILES.DOOR:
-    // Base de grama
-    ctx.fillStyle = '#4a7c3b';
-    ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-    // Porta
-    ctx.fillStyle = '#6b4423';
-    ctx.fillRect(px + 10, py + 8, 12, 20);
-    ctx.fillStyle = '#ffd700';
-    ctx.fillRect(px + 18, py + 18, 2, 2);
-    // Cadeado - mais visível
-    if (!hasItem('key')) {
-        ctx.fillStyle = '#ff0000';
-        ctx.fillRect(px + 13, py + 14, 6, 8);
-        ctx.fillStyle = '#cc0000';
-        ctx.beginPath();
-        ctx.arc(px + 16, py + 15, 3, Math.PI, 0, true);
-        ctx.stroke();
-    } else {
-        // Porta aberta
-        ctx.fillStyle = '#00ff00';
-        ctx.fillRect(px + 18, py + 16, 3, 3);
-    }
-    break;
-                    
-                case TILES.FENCE:
-                    // Base de grama
+                    // Grass base
                     ctx.fillStyle = '#4a7c3b';
                     ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-                    // Cerca
-                    ctx.fillStyle = '#8b6914';
-                    ctx.fillRect(px + 4, py + 12, 2, 12);
-                    ctx.fillRect(px + 14, py + 12, 2, 12);
-                    ctx.fillRect(px + 24, py + 12, 2, 12);
-                    ctx.fillRect(px + 2, py + 16, 28, 2);
-                    ctx.fillRect(px + 2, py + 20, 28, 2);
+                    // Door frame
+                    ctx.fillStyle = '#6b4423';
+                    ctx.fillRect(px + 8, py + 8, 16, 24);
+                    ctx.fillStyle = '#8b5a33';
+                    ctx.fillRect(px + 10, py + 10, 12, 20);
+                    // Handle
+                    ctx.fillStyle = '#ffd700';
+                    ctx.fillRect(px + 18, py + 20, 2, 3);
+                    // Lock indicator
+                    if (!hasItem('key')) {
+                        ctx.fillStyle = '#ff0000';
+                        ctx.beginPath();
+                        ctx.arc(px + 16, py + 18, 4, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#cc0000';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.arc(px + 16, py + 16, 3, Math.PI, 0, true);
+                        ctx.stroke();
+                    }
                     break;
                     
-                case TILES.HOUSE:
-                    // Parede
+                case TILES.FENCE:
+                    // Grass base
+                    ctx.fillStyle = '#4a7c3b';
+                    ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+                    // Fence posts
+                    ctx.fillStyle = '#8b6914';
+                    ctx.fillRect(px + 6, py + 14, 3, 14);
+                    ctx.fillRect(px + 15, py + 14, 3, 14);
+                    ctx.fillRect(px + 24, py + 14, 3, 14);
+                    // Horizontal bars
+                    ctx.fillRect(px + 4, py + 18, 24, 2);
+                    ctx.fillRect(px + 4, py + 24, 24, 2);
+                    break;
+                    
+                case TILES.HOUSE_WALL:
+                    // Wall
                     ctx.fillStyle = '#8b7355';
                     ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-                    // Janela
-                    ctx.fillStyle = '#6ab0ff';
-                    ctx.fillRect(px + 8, py + 8, 8, 8);
-                    ctx.fillStyle = '#4a90e2';
-                    ctx.fillRect(px + 11, py + 8, 2, 8);
-                    ctx.fillRect(px + 8, py + 11, 8, 2);
-                    // Detalhe
-                    ctx.fillStyle = '#6b5435';
-                    ctx.fillRect(px, py, TILE_SIZE, 4);
+                    // Bricks
+                    ctx.strokeStyle = '#6b5335';
+                    ctx.lineWidth = 1;
+                    for (let i = 0; i < TILE_SIZE; i += 8) {
+                        ctx.strokeRect(px, py + i, TILE_SIZE, 8);
+                    }
+                    // Window (sometimes)
+                    if ((x + y) % 3 === 0) {
+                        ctx.fillStyle = '#6ab0ff';
+                        ctx.fillRect(px + 8, py + 8, 10, 10);
+                        ctx.strokeStyle = '#4a90e2';
+                        ctx.strokeRect(px + 12, py + 8, 2, 10);
+                        ctx.strokeRect(px + 8, py + 12, 10, 2);
+                    }
+                    break;
+                    
+                case TILES.HOUSE_ROOF:
+                    // Roof tiles
+                    ctx.fillStyle = '#8b3a3a';
+                    ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+                    ctx.fillStyle = '#a04545';
+                    for (let i = 0; i < TILE_SIZE; i += 4) {
+                        ctx.fillRect(px, py + i, TILE_SIZE, 2);
+                    }
+                    break;
+                    
+                case TILES.FLOOR:
+                    // Wooden floor
+                    ctx.fillStyle = '#8b7355';
+                    ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+                    ctx.fillStyle = '#9b8365';
+                    for (let i = 0; i < TILE_SIZE; i += 8) {
+                        ctx.fillRect(px, py + i, TILE_SIZE, 4);
+                    }
+                    break;
+                    
+                case TILES.PATH:
+                    // Dirt path
+                    ctx.fillStyle = '#9b7653';
+                    ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+                    // Stones
+                    ctx.fillStyle = '#8b6843';
+                    for (let i = 0; i < 3; i++) {
+                        const sx = px + Math.random() * TILE_SIZE;
+                        const sy = py + Math.random() * TILE_SIZE;
+                        ctx.fillRect(sx, sy, 3, 3);
+                    }
+                    break;
+                    
+                case TILES.FLOWER:
+                    // Grass base
+                    ctx.fillStyle = '#4a7c3b';
+                    ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+                    // Flower
+                    ctx.fillStyle = '#ff6b9d';
+                    ctx.beginPath();
+                    ctx.arc(px + 16, py + 16, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#ffd700';
+                    ctx.beginPath();
+                    ctx.arc(px + 16, py + 16, 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    // Stem
+                    ctx.strokeStyle = '#2d5016';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(px + 16, py + 20);
+                    ctx.lineTo(px + 16, py + 28);
+                    ctx.stroke();
+                    break;
+                    
+                case TILES.BUSH:
+                    // Grass base
+                    ctx.fillStyle = '#4a7c3b';
+                    ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+                    // Bush
+                    ctx.fillStyle = '#3a6020';
+                    ctx.beginPath();
+                    ctx.arc(px + 12, py + 20, 6, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(px + 20, py + 20, 6, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(px + 16, py + 16, 7, 0, Math.PI * 2);
+                    ctx.fill();
                     break;
             }
+            
+            ctx.restore();
         }
         
-        function drawPlayer(x, y) {
-            const px = x * TILE_SIZE;
-            const py = y * TILE_SIZE;
+        function drawPlayer() {
+            const screenX = (player.x - game.camera.x) * TILE_SIZE;
+            const screenY = (player.y - game.camera.y) * TILE_SIZE;
             const size = TILE_SIZE * 0.9;
             const offset = TILE_SIZE * 0.05;
             
-            // Sombra
+            ctx.save();
+            
+            // Shadow
             ctx.fillStyle = 'rgba(0,0,0,0.3)';
             ctx.beginPath();
-            ctx.ellipse(px + TILE_SIZE/2, py + size + offset - 2, size/3, size/6, 0, 0, Math.PI * 2);
+            ctx.ellipse(screenX + TILE_SIZE/2, screenY + size, size/3, size/6, 0, 0, Math.PI * 2);
             ctx.fill();
             
-            // Corpo (bruxa)
+            // Body (witch costume)
             ctx.fillStyle = '#2d0052';
-            ctx.fillRect(px + offset + size/4, py + offset + size/2, size/2, size/2);
+            ctx.fillRect(screenX + offset + size/3, screenY + offset + size/2, size/3, size/2);
             
-            // Capa
+            // Cape animation
+            const capeOffset = player.isMoving ? Math.sin(Date.now() / 100) * 2 : 0;
             ctx.fillStyle = '#ff6b00';
             ctx.beginPath();
-            ctx.moveTo(px + offset + size/4, py + offset + size/2 + 4);
-            ctx.lineTo(px + offset, py + offset + size/2 + size/3);
-            ctx.lineTo(px + offset + size/6, py + offset + size - 4);
+            ctx.moveTo(screenX + offset + size/3, screenY + offset + size/2 + 4);
+            ctx.lineTo(screenX + offset - 2 + capeOffset, screenY + offset + size/2 + size/3);
+            ctx.lineTo(screenX + offset + size/5, screenY + offset + size - 4);
             ctx.closePath();
             ctx.fill();
             
             ctx.beginPath();
-            ctx.moveTo(px + offset + size*3/4, py + offset + size/2 + 4);
-            ctx.lineTo(px + offset + size, py + offset + size/2 + size/3);
-            ctx.lineTo(px + offset + size*5/6, py + offset + size - 4);
+            ctx.moveTo(screenX + offset + size*2/3, screenY + offset + size/2 + 4);
+            ctx.lineTo(screenX + offset + size + 2 - capeOffset, screenY + offset + size/2 + size/3);
+            ctx.lineTo(screenX + offset + size*4/5, screenY + offset + size - 4);
             ctx.closePath();
             ctx.fill();
             
-            // Cabeça
+            // Head
             ctx.fillStyle = '#ffcc99';
             ctx.beginPath();
-            ctx.arc(px + TILE_SIZE/2, py + offset + size/3, size/5, 0, Math.PI * 2);
+            ctx.arc(screenX + TILE_SIZE/2, screenY + offset + size/3, size/5, 0, Math.PI * 2);
             ctx.fill();
             
-            // Chapéu de bruxa
+            // Witch hat
             ctx.fillStyle = '#4B0082';
             ctx.beginPath();
-            ctx.moveTo(px + offset + size/4, py + offset + size/6);
-            ctx.lineTo(px + TILE_SIZE/2, py + offset);
-            ctx.lineTo(px + offset + size*3/4, py + offset + size/6);
+            ctx.moveTo(screenX + offset + size/4, screenY + offset + size/6);
+            ctx.lineTo(screenX + TILE_SIZE/2, screenY + offset - 4);
+            ctx.lineTo(screenX + offset + size*3/4, screenY + offset + size/6);
             ctx.closePath();
             ctx.fill();
             
-            ctx.fillRect(px + offset + size/5, py + offset + size/6, size*3/5, 3);
+            // Hat brim
+            ctx.fillRect(screenX + offset + size/6, screenY + offset + size/6, size*2/3, 3);
             
-            // Olhos
+            // Face
             ctx.fillStyle = '#000';
-            ctx.fillRect(px + TILE_SIZE/2 - 4, py + offset + size/3 - 2, 2, 2);
-            ctx.fillRect(px + TILE_SIZE/2 + 2, py + offset + size/3 - 2, 2, 2);
+            ctx.fillRect(screenX + TILE_SIZE/2 - 5, screenY + offset + size/3 - 2, 2, 2);
+            ctx.fillRect(screenX + TILE_SIZE/2 + 3, screenY + offset + size/3 - 2, 2, 2);
             
-            // Ferramenta equipada
-            if (game.currentTool) {
+            // Smile
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(screenX + TILE_SIZE/2, screenY + offset + size/3 + 2, 3, 0, Math.PI);
+            ctx.stroke();
+            
+            // Tool equipped
+            if (game.selectedTool) {
                 ctx.font = '16px Arial';
-                ctx.fillText(game.currentTool.emoji, px + size + 2, py + offset + size/2);
+                ctx.fillText(game.selectedTool.emoji, screenX + size + 4, screenY + offset + size/2);
             }
+            
+            ctx.restore();
         }
         
-        function drawItem(item, x, y) {
-            const px = x * TILE_SIZE;
-            const py = y * TILE_SIZE;
+        function drawItem(item, worldX, worldY) {
+            const screenX = (worldX - game.camera.x) * TILE_SIZE;
+            const screenY = (worldY - game.camera.y) * TILE_SIZE;
             
-            // Brilho
-            const time = Date.now() / 500;
+            // Glow animation
+            const time = Date.now() / 400;
+const glowSize = 4 + Math.sin(time) * 2;
+            
             ctx.save();
-            ctx.globalAlpha = 0.3 + Math.sin(time) * 0.2;
+            ctx.globalAlpha = 0.4 + Math.sin(time) * 0.2;
             ctx.fillStyle = '#ffd700';
             ctx.beginPath();
-            ctx.arc(px + TILE_SIZE/2, py + TILE_SIZE/2, TILE_SIZE/2 + 4, 0, Math.PI * 2);
+            ctx.arc(screenX + TILE_SIZE/2, screenY + TILE_SIZE/2, TILE_SIZE/2 + glowSize, 0, Math.PI * 2);
             ctx.fill();
             ctx.restore();
             
-            // Item
-            ctx.font = '24px Arial';
+            // Item floating animation
+            const floatOffset = Math.sin(time * 2) * 3;
+            
+            ctx.font = '28px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(item.emoji, px + TILE_SIZE/2, py + TILE_SIZE/2 - Math.sin(time * 2) * 3);
+            ctx.fillText(item.emoji, screenX + TILE_SIZE/2, screenY + TILE_SIZE/2 + floatOffset);
         }
         
-        function drawPumpkin(x, y) {
-            const px = x * TILE_SIZE;
-            const py = y * TILE_SIZE;
+        function drawPumpkin(worldX, worldY) {
+            const screenX = (worldX - game.camera.x) * TILE_SIZE;
+            const screenY = (worldY - game.camera.y) * TILE_SIZE;
             const time = Date.now() / 300;
             
-            // Brilho mágico
+            // Magic aura
             ctx.save();
-            ctx.globalAlpha = 0.4 + Math.sin(time) * 0.3;
-            ctx.fillStyle = '#ff6b00';
+            ctx.globalAlpha = 0.5 + Math.sin(time) * 0.3;
+            
+            // Outer glow
+            const gradient = ctx.createRadialGradient(
+                screenX + TILE_SIZE/2, screenY + TILE_SIZE/2, 0,
+                screenX + TILE_SIZE/2, screenY + TILE_SIZE/2, TILE_SIZE/2 + 8
+            );
+            gradient.addColorStop(0, 'rgba(255, 107, 0, 0.8)');
+            gradient.addColorStop(1, 'rgba(255, 107, 0, 0)');
+            ctx.fillStyle = gradient;
             ctx.beginPath();
-            ctx.arc(px + TILE_SIZE/2, py + TILE_SIZE/2, TILE_SIZE/2 + 6, 0, Math.PI * 2);
+            ctx.arc(screenX + TILE_SIZE/2, screenY + TILE_SIZE/2, TILE_SIZE/2 + 8, 0, Math.PI * 2);
             ctx.fill();
             ctx.restore();
             
-            // Abóbora
+            // Pumpkin body
             ctx.fillStyle = '#ff8c00';
             ctx.beginPath();
-            ctx.arc(px + TILE_SIZE/2, py + TILE_SIZE/2, TILE_SIZE/3, 0, Math.PI * 2);
+            ctx.ellipse(screenX + TILE_SIZE/2, screenY + TILE_SIZE/2, 12, 10, 0, 0, Math.PI * 2);
             ctx.fill();
             
-            // Rosto
+            // Segments
+            ctx.strokeStyle = '#cc6600';
+            ctx.lineWidth = 2;
+            for (let i = -1; i <= 1; i++) {
+                ctx.beginPath();
+                ctx.moveTo(screenX + TILE_SIZE/2 + i * 6, screenY + TILE_SIZE/2 - 10);
+                ctx.lineTo(screenX + TILE_SIZE/2 + i * 6, screenY + TILE_SIZE/2 + 10);
+                ctx.stroke();
+            }
+            
+            // Face - evil grin
             ctx.fillStyle = '#000';
-            // Olhos triangulares
+            // Eyes (triangular)
             ctx.beginPath();
-            ctx.moveTo(px + TILE_SIZE/2 - 6, py + TILE_SIZE/2 - 4);
-            ctx.lineTo(px + TILE_SIZE/2 - 3, py + TILE_SIZE/2 - 8);
-            ctx.lineTo(px + TILE_SIZE/2, py + TILE_SIZE/2 - 4);
+            ctx.moveTo(screenX + TILE_SIZE/2 - 7, screenY + TILE_SIZE/2 - 3);
+            ctx.lineTo(screenX + TILE_SIZE/2 - 4, screenY + TILE_SIZE/2 - 6);
+            ctx.lineTo(screenX + TILE_SIZE/2 - 1, screenY + TILE_SIZE/2 - 3);
             ctx.fill();
             
             ctx.beginPath();
-            ctx.moveTo(px + TILE_SIZE/2, py + TILE_SIZE/2 - 4);
-            ctx.lineTo(px + TILE_SIZE/2 + 3, py + TILE_SIZE/2 - 8);
-            ctx.lineTo(px + TILE_SIZE/2 + 6, py + TILE_SIZE/2 - 4);
+            ctx.moveTo(screenX + TILE_SIZE/2 + 1, screenY + TILE_SIZE/2 - 3);
+            ctx.lineTo(screenX + TILE_SIZE/2 + 4, screenY + TILE_SIZE/2 - 6);
+            ctx.lineTo(screenX + TILE_SIZE/2 + 7, screenY + TILE_SIZE/2 - 3);
             ctx.fill();
             
-            // Boca
+            // Mouth (zigzag)
             ctx.beginPath();
-            ctx.arc(px + TILE_SIZE/2, py + TILE_SIZE/2 + 2, 6, 0, Math.PI);
+            ctx.moveTo(screenX + TILE_SIZE/2 - 8, screenY + TILE_SIZE/2 + 3);
+            for (let i = 0; i < 5; i++) {
+                ctx.lineTo(screenX + TILE_SIZE/2 - 8 + i * 4, screenY + TILE_SIZE/2 + (i % 2 === 0 ? 6 : 3));
+            }
+            ctx.lineTo(screenX + TILE_SIZE/2 - 8, screenY + TILE_SIZE/2 + 3);
             ctx.fill();
             
-            // Talo
+            // Stem
             ctx.fillStyle = '#2d5016';
-            ctx.fillRect(px + TILE_SIZE/2 - 2, py + TILE_SIZE/2 - TILE_SIZE/3 - 3, 4, 6);
+            ctx.fillRect(screenX + TILE_SIZE/2 - 2, screenY + TILE_SIZE/2 - 12, 4, 4);
             
-            // Partículas flutuantes
+            // Sparkles
             ctx.fillStyle = '#ffa500';
-            for (let i = 0; i < 3; i++) {
-                const angle = time + i * Math.PI * 2 / 3;
-                const radius = TILE_SIZE/2 + 8;
-                const particleX = px + TILE_SIZE/2 + Math.cos(angle) * radius;
-                const particleY = py + TILE_SIZE/2 + Math.sin(angle) * radius;
-                ctx.fillRect(particleX, particleY, 2, 2);
+            for (let i = 0; i < 5; i++) {
+                const angle = time + i * Math.PI * 2 / 5;
+                const radius = TILE_SIZE/2 + 10;
+                const sparkleX = screenX + TILE_SIZE/2 + Math.cos(angle) * radius;
+                const sparkleY = screenY + TILE_SIZE/2 + Math.sin(angle) * radius;
+                ctx.fillRect(sparkleX - 1, sparkleY - 1, 2, 2);
             }
         }
         
-        // ===== UPDATE CAMERA =====
+        function drawNPC(npc) {
+            const screenX = (npc.x - game.camera.x) * TILE_SIZE;
+            const screenY = (npc.y - game.camera.y) * TILE_SIZE;
+            
+            // Shadow
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.beginPath();
+            ctx.ellipse(screenX + TILE_SIZE/2, screenY + TILE_SIZE - 4, 10, 4, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Idle animation
+            const bobOffset = Math.sin(Date.now() / 500 + npc.x) * 2;
+            
+            // Character emoji
+            ctx.font = '32px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(npc.emoji, screenX + TILE_SIZE/2, screenY + TILE_SIZE/2 + bobOffset);
+            
+            // Name tag
+            ctx.font = '8px Press Start 2P';
+            ctx.fillStyle = '#000';
+            ctx.fillText(npc.name, screenX + TILE_SIZE/2 + 1, screenY - 6 + bobOffset + 1);
+            ctx.fillStyle = '#fff';
+            ctx.fillText(npc.name, screenX + TILE_SIZE/2, screenY - 7 + bobOffset);
+            
+            // Quest indicator
+            if (!npc.questGiven && npc.quest) {
+                ctx.fillStyle = '#ffd700';
+                ctx.beginPath();
+                ctx.arc(screenX + TILE_SIZE/2, screenY - 15 + bobOffset, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#ff8c00';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+        
+        // ===== CAMERA =====
         function updateCamera() {
             game.camera.x = player.x - VIEWPORT_WIDTH / 2;
             game.camera.y = player.y - VIEWPORT_HEIGHT / 2;
             
             game.camera.x = Math.max(0, Math.min(game.camera.x, MAP_WIDTH - VIEWPORT_WIDTH));
             game.camera.y = Math.max(0, Math.min(game.camera.y, MAP_HEIGHT - VIEWPORT_HEIGHT));
+        }
+        
+        // ===== MINIMAP =====
+        function drawMinimap() {
+            const scale = 3;
+            minimapCtx.fillStyle = '#000';
+            minimapCtx.fillRect(0, 0, minimapCanvas.width, minimapCanvas.height);
+            
+            // Draw world
+            for (let y = 0; y < MAP_HEIGHT; y++) {
+                for (let x = 0; x < MAP_WIDTH; x++) {
+                    const tile = worldMap[y][x];
+                    let color = '#4a7c3b'; // grass default
+                    
+                    if (tile === TILES.WATER) color = '#4a90e2';
+                    else if (tile === TILES.STONE) color = '#6b6b6b';
+                    else if (tile === TILES.TREE) color = '#2d5016';
+                    else if (tile === TILES.HOUSE_WALL || tile === TILES.HOUSE_ROOF) color = '#8b7355';
+                    
+                    minimapCtx.fillStyle = color;
+                    minimapCtx.fillRect(x * scale, y * scale, scale, scale);
+                }
+            }
+            
+            // Draw pumpkins
+            pumpkins.forEach(pumpkin => {
+                if (!pumpkin.collected) {
+                    minimapCtx.fillStyle = '#ff8c00';
+                    minimapCtx.fillRect(pumpkin.x * scale - 1, pumpkin.y * scale - 1, scale + 2, scale + 2);
+                }
+            });
+            
+            // Draw NPCs
+            npcs.forEach(npc => {
+                minimapCtx.fillStyle = '#ffd700';
+                minimapCtx.fillRect(npc.x * scale, npc.y * scale, scale, scale);
+            });
+            
+            // Draw player
+            minimapCtx.fillStyle = '#00ff00';
+            minimapCtx.fillRect(player.x * scale - 1, player.y * scale - 1, scale + 2, scale + 2);
         }
         
         // ===== RENDER =====
@@ -1530,10 +2131,9 @@ const pumpkins = [
             // Draw tiles
             for (let row = startRow; row < endRow; row++) {
                 for (let col = startCol; col < endCol; col++) {
-                    const tile = worldMap[row][col];
                     const screenX = col - game.camera.x;
                     const screenY = row - game.camera.y;
-                    drawTile(tile, screenX, screenY);
+                    drawTile(worldMap[row][col], screenX, screenY);
                 }
             }
             
@@ -1543,7 +2143,7 @@ const pumpkins = [
                     const screenX = item.x - game.camera.x;
                     const screenY = item.y - game.camera.y;
                     if (screenX >= -1 && screenX <= VIEWPORT_WIDTH && screenY >= -1 && screenY <= VIEWPORT_HEIGHT) {
-                        drawItem(item, screenX, screenY);
+                        drawItem(item, item.x, item.y);
                     }
                 }
             });
@@ -1554,107 +2154,143 @@ const pumpkins = [
                     const screenX = pumpkin.x - game.camera.x;
                     const screenY = pumpkin.y - game.camera.y;
                     if (screenX >= -1 && screenX <= VIEWPORT_WIDTH && screenY >= -1 && screenY <= VIEWPORT_HEIGHT) {
-                        drawPumpkin(screenX, screenY);
+                        drawPumpkin(pumpkin.x, pumpkin.y);
                     }
                 }
             });
             
+            // Draw NPCs
+            npcs.forEach(npc => {
+                const screenX = npc.x - game.camera.x;
+                const screenY = npc.y - game.camera.y;
+                if (screenX >= -1 && screenX <= VIEWPORT_WIDTH && screenY >= -1 && screenY <= VIEWPORT_HEIGHT) {
+                    drawNPC(npc);
+                }
+            });
+            
             // Draw player
-            const playerScreenX = player.x - game.camera.x;
-            const playerScreenY = player.y - game.camera.y;
-            drawPlayer(playerScreenX, playerScreenY);
+            drawPlayer();
+            
+            // Draw minimap
+            drawMinimap();
         }
         
         // ===== UPDATE =====
         function update() {
             if (game.state !== 'playing') return;
             
+            const now = Date.now();
+            const deltaTime = (now - game.lastUpdate) / 16.67; // 60 FPS normalization
+            game.lastUpdate = now;
+            
             let dx = 0, dy = 0;
             
-            if (game.keys.ArrowUp || game.keys.w || game.keys.W || game.touch.up) dy -= 1;
-            if (game.keys.ArrowDown || game.keys.s || game.keys.S || game.touch.down) dy += 1;
-            if (game.keys.ArrowLeft || game.keys.a || game.keys.A || game.touch.left) dx -= 1;
-            if (game.keys.ArrowRight || game.keys.d || game.keys.D || game.touch.right) dx += 1;
+            if (game.keys.w || game.keys.W || game.keys.ArrowUp || game.touch.up) dy -= 1;
+            if (game.keys.s || game.keys.S || game.keys.ArrowDown || game.touch.down) dy += 1;
+            if (game.keys.a || game.keys.A || game.keys.ArrowLeft || game.touch.left) dx -= 1;
+            if (game.keys.d || game.keys.D || game.keys.ArrowRight || game.touch.right) dx += 1;
             
-            if (dx !== 0 || dy !== 0) {
-    const length = Math.sqrt(dx * dx + dy * dy);
-    dx = (dx / length) * player.speed;
-    dy = (dy / length) * player.speed;
-    
-    const newX = player.x + dx;
-    const newY = player.y + dy;
-    
-    let blockedX = false;
-    let blockedY = false;
-    
-    if (canMove(newX, player.y)) {
-        player.x = newX;
-    } else {
-        blockedX = true;
-    }
-    
-    if (canMove(player.x, newY)) {
-        player.y = newY;
-    } else {
-        blockedY = true;
-    }
-    
-    // Mostrar mensagem quando bloqueado
-if (blockedX || blockedY) {
-    const checkX = player.x + (dx * 3);
-    const checkY = player.y + (dy * 3);
-    const tile = getTile(checkX, checkY);
-    
-    if (tile === TILES.TREE && !hasItem('axe')) {
-        if (!game.lastBlockMessage || Date.now() - game.lastBlockMessage > 2000) {
-            showTooltip('🌲 Precisa do Machado 🪓 para cortar árvores!');
-            game.lastBlockMessage = Date.now();
-        }
-    } else if (tile === TILES.DOOR && !hasItem('key')) {
-        if (!game.lastBlockMessage || Date.now() - game.lastBlockMessage > 2000) {
-            showTooltip('🔒 Precisa da Chave 🔑 para abrir a porta!');
-            game.lastBlockMessage = Date.now();
-        }
-    } else if ((tile === TILES.CAVE || tile === TILES.STONE || tile === TILES.ROCK) && !hasItem('pickaxe')) {
-        if (!game.lastBlockMessage || Date.now() - game.lastBlockMessage > 2000) {
-            showTooltip('⛰️ Precisa da Picareta ⛏️ para quebrar rochas!');
-            game.lastBlockMessage = Date.now();
-        }
-    }
-}
-}
+            player.isMoving = dx !== 0 || dy !== 0;
+            
+            if (player.isMoving) {
+                const length = Math.sqrt(dx * dx + dy * dy);
+                dx = (dx / length) * player.speed * deltaTime;
+                dy = (dy / length) * player.speed * deltaTime;
+                
+                const newX = player.x + dx;
+                const newY = player.y + dy;
+                
+                if (canMove(newX, player.y)) {
+                    player.x = newX;
+                } else {
+                    showBlockMessage(getTile(newX, player.y));
+                }
+                
+                if (canMove(player.x, newY)) {
+                    player.y = newY;
+                } else {
+                    showBlockMessage(getTile(player.x, newY));
+                }
+                
+                // Energy consumption
+                player.energy = Math.max(0, player.energy - 0.01 * deltaTime);
+                
+                // Animation
+                player.animTimer += deltaTime;
+                if (player.animTimer > 8) {
+                    player.animFrame = (player.animFrame + 1) % 4;
+                    player.animTimer = 0;
+                }
+            }
+            
+            // Energy regeneration when not moving
+            if (!player.isMoving) {
+                player.energy = Math.min(player.maxEnergy, player.energy + 0.05 * deltaTime);
+            }
             
             // Check item collection
             items.forEach(item => {
                 if (!item.collected) {
                     const dist = Math.sqrt(Math.pow(player.x - item.x, 2) + Math.pow(player.y - item.y, 2));
-                   if (dist < 1.2) {  // AUMENTADO de 0.8 para 1.2 (área maior de coleta)
+                    if (dist < 1.5) {
                         item.collected = true;
-                       addItem(item);
+                        addItem(item);
                     }
-               }
+                }
             });
-
+            
             // Check pumpkin collection
             pumpkins.forEach(pumpkin => {
                 if (!pumpkin.collected) {
                     const dist = Math.sqrt(Math.pow(player.x - pumpkin.x, 2) + Math.pow(player.y - pumpkin.y, 2));
-                    if (dist < 1.2) {  // AUMENTADO de 0.8 para 1.2 (área maior de coleta)
-                       if (pumpkin.requires && !hasItem(pumpkin.requires)) {
-                            showTooltip(`Precisa de ${getToolName(pumpkin.requires)}!`);
-                       } else {
+                    if (dist < 1.5) {
+                        if (pumpkin.requires && !hasItem(pumpkin.requires)) {
+                            showTooltip(`🔒 Precisa de: ${getToolName(pumpkin.requires)}!`);
+                        } else {
                             pumpkin.collected = true;
                             game.pumpkinsFound++;
-                           document.getElementById('pumpkinCount').textContent = game.pumpkinsFound;
-                           showTooltip(`Encontrou: ${pumpkin.name}! (${game.pumpkinsFound}/5)`);
-                
-                            if (game.pumpkinsFound >= 5) {
-                                setTimeout(victory, 1000);
-                           }
+                            updateScore(200);
+                            showTooltip(`🎃 ${pumpkin.name} encontrada! (${game.pumpkinsFound}/10)`);
+                            updateHUD();
+                            
+                            if (game.pumpkinsFound >= 10) {
+                                setTimeout(victory, 1500);
+                            }
                         }
-                   }
+                    }
                 }
             });
+            
+            // Check NPC interaction
+            if (game.keys.e || game.keys.E || game.keys[' ']) {
+                npcs.forEach(npc => {
+                    const dist = Math.sqrt(Math.pow(player.x - npc.x, 2) + Math.pow(player.y - npc.y, 2));
+                    if (dist < 2) {
+                        interactWithNPC(npc);
+                    }
+                });
+                // Reset key to prevent repeated interaction
+                game.keys.e = false;
+                game.keys.E = false;
+                game.keys[' '] = false;
+            }
+            
+            updateHUD();
+        }
+        
+        let lastBlockTime = 0;
+        function showBlockMessage(tile) {
+            const now = Date.now();
+            if (now - lastBlockTime < 2000) return;
+            lastBlockTime = now;
+            
+            if (tile === TILES.TREE && !hasItem('axe')) {
+                showTooltip('🌲 Precisa do Machado 🪓!');
+            } else if (tile === TILES.DOOR && !hasItem('key')) {
+                showTooltip('🔒 Precisa da Chave 🔑!');
+            } else if ((tile === TILES.CAVE || tile === TILES.STONE || tile === TILES.ROCK) && !hasItem('pickaxe')) {
+                showTooltip('⛰️ Precisa da Picareta ⛏️!');
+            }
         }
         
         function getToolName(type) {
@@ -1666,6 +2302,87 @@ if (blockedX || blockedY) {
             return names[type] || type;
         }
         
+        // ===== NPC INTERACTION =====
+        function interactWithNPC(npc) {
+            showTooltip(`💬 Conversando com ${npc.name}...`);
+            
+            setTimeout(() => {
+                const dialogueText = npc.dialogue.join('\n\n');
+                showTooltip(`${npc.emoji} ${npc.name}:\n\n${dialogueText}`);
+                
+                if (npc.quest && !npc.questGiven) {
+                    npc.questGiven = true;
+                    addQuest(npc.quest);
+                    updateScore(100);
+                }
+            }, 500);
+        }
+        
+        // ===== QUEST SYSTEM =====
+        function addQuest(questId) {
+            const quests = {
+                'find_pumpkins': {
+                    id: 'find_pumpkins',
+                    name: 'Encontrar 10 Abóboras Mágicas',
+                    description: 'Ajude a Bruxa Morgana a encontrar as abóboras perdidas pelo vale.',
+                    progress: 0,
+                    total: 10
+                }
+            };
+            
+            if (quests[questId] && !game.quests.find(q => q.id === questId)) {
+                game.quests.push(quests[questId]);
+                updateQuestPanel();
+                showTooltip(`📜 Nova missão: ${quests[questId].name}!`);
+            }
+        }
+        
+        function updateQuestPanel() {
+            const questList = document.getElementById('questList');
+            questList.innerHTML = '';
+            
+            game.quests.forEach(quest => {
+                const questDiv = document.createElement('div');
+                questDiv.className = 'quest-item';
+                
+                if (quest.id === 'find_pumpkins') {
+                    quest.progress = game.pumpkinsFound;
+                }
+                
+                const completed = quest.progress >= quest.total;
+                if (completed) questDiv.classList.add('completed');
+                
+                questDiv.innerHTML = `
+                    ${quest.name}<br>
+                    <span style="color: ${completed ? '#00ff88' : '#ffa500'};">
+                        ${quest.progress}/${quest.total} ${completed ? '✓' : ''}
+                    </span>
+                `;
+                
+                questList.appendChild(questDiv);
+            });
+        }
+        
+        // ===== HUD UPDATE =====
+        function updateHUD() {
+            document.getElementById('playerName').textContent = game.playerNick;
+            document.getElementById('healthValue').textContent = Math.floor(player.health);
+            document.getElementById('healthBar').style.width = (player.health / player.maxHealth * 100) + '%';
+            document.getElementById('energyValue').textContent = Math.floor(player.energy);
+            document.getElementById('energyBar').style.width = (player.energy / player.maxEnergy * 100) + '%';
+            document.getElementById('goldValue').textContent = game.gold;
+            document.getElementById('pumpkinCount').textContent = game.pumpkinsFound;
+            
+            // Update time
+            game.elapsedTime = Date.now() - game.startTime;
+            document.getElementById('timeValue').textContent = RankingSystem.formatTime(game.elapsedTime);
+        }
+        
+        function updateScore(points) {
+            game.score += points;
+            game.gold += Math.floor(points / 10);
+        }
+        
         // ===== TOOLTIP =====
         function showTooltip(text) {
             const existing = document.querySelector('.tooltip');
@@ -1673,10 +2390,10 @@ if (blockedX || blockedY) {
             
             const tooltip = document.createElement('div');
             tooltip.className = 'tooltip';
-            tooltip.textContent = text;
+            tooltip.innerHTML = text.replace(/\n/g, '<br>');
             document.body.appendChild(tooltip);
             
-            setTimeout(() => tooltip.remove(), 3000);
+            setTimeout(() => tooltip.remove(), 2500);
         }
         
         // ===== GAME LOOP =====
@@ -1690,9 +2407,8 @@ if (blockedX || blockedY) {
         document.addEventListener('keydown', e => {
             game.keys[e.key] = true;
             
-            if ((e.key === ' ' || e.key === 'e' || e.key === 'E') && game.state === 'playing') {
-                e.preventDefault();
-                useTool();
+            if (e.key === 'Escape' && game.state === 'playing') {
+                // Pause menu (opcional)
             }
         });
         
@@ -1715,214 +2431,237 @@ if (blockedX || blockedY) {
             });
         });
         
-        document.getElementById('btnAction').addEventListener('touchstart', e => {
+        document.getElementById('btnInteract').addEventListener('touchstart', e => {
             e.preventDefault();
-            useTool();
+            game.keys.e = true;
+            setTimeout(() => game.keys.e = false, 100);
         });
         
-        // ===== FUNÇÕES DE RANKING =====
-function submitNick() {
-    const nick = document.getElementById('nickInput').value.trim();
-    
-    if (nick.length < 2) {
-        showTooltip('⚠️ Nick deve ter pelo menos 2 caracteres!');
-        return;
-    }
-    
-    game.playerNick = nick;
-    document.getElementById('nickScreen').classList.add('hidden');
-    document.getElementById('startScreen').classList.remove('hidden');
-}
-
-function showRankings() {
-    document.getElementById('nickScreen').classList.add('hidden');
-    document.getElementById('startScreen').classList.add('hidden');
-    document.getElementById('rankingsScreen').classList.remove('hidden');
-    initRankingButtons(); // Inicializar botões
-    switchRankingTab('speed');
-}
-
-function showRankingsFromVictory() {
-    document.getElementById('victoryScreen').classList.add('hidden');
-    document.getElementById('rankingsScreen').classList.remove('hidden');
-    initRankingButtons(); // Inicializar botões
-    switchRankingTab('speed');
-}
-
-function closeRankings() {
-    document.getElementById('rankingsScreen').classList.add('hidden');
-    
-    if (game.state === 'victory') {
-        document.getElementById('victoryScreen').classList.remove('hidden');
-    } else if (game.playerNick) {
-        document.getElementById('startScreen').classList.remove('hidden');
-    } else {
-        document.getElementById('nickScreen').classList.remove('hidden');
-    }
-}
-
-// Inicializar eventos dos botões de ranking
-function initRankingButtons() {
-    const buttons = document.querySelectorAll('.ranking-tabs .ranking-btn');
-    if (buttons.length >= 3) {
-        buttons[0].onclick = () => switchRankingTab('speed');
-        buttons[1].onclick = () => switchRankingTab('pumpkins');
-        buttons[2].onclick = () => switchRankingTab('playtime');
-    }
-}
-
-function switchRankingTab(type) {
-    let rankings = [];
-    let title = '';
-    let emptyMessage = '';
-    
-    // Atualizar estado dos botões
-    document.querySelectorAll('.ranking-tabs .ranking-btn').forEach(btn => {
-        btn.style.background = 'linear-gradient(135deg, #00ff88 0%, #00cc66 100%)';
-        btn.style.color = '#000';
-    });
-    
-    switch(type) {
-        case 'speed':
-            rankings = RankingSystem.getTopSpeed();
-            title = '⚡ TOP 10 MAIS RÁPIDOS (Jogo Completo)';
-            emptyMessage = 'Nenhum jogador completou o jogo ainda!';
-            document.querySelectorAll('.ranking-tabs .ranking-btn')[0].style.background = 'linear-gradient(135deg, #ff6b00 0%, #cc5500 100%)';
-            document.querySelectorAll('.ranking-tabs .ranking-btn')[0].style.color = '#fff';
-            break;
-        case 'pumpkins':
-            rankings = RankingSystem.getTopPumpkins();
-            title = '🎃 TOP 10 MAIS ABÓBORAS';
-            emptyMessage = 'Nenhuma partida registrada ainda!';
-            document.querySelectorAll('.ranking-tabs .ranking-btn')[1].style.background = 'linear-gradient(135deg, #ff6b00 0%, #cc5500 100%)';
-            document.querySelectorAll('.ranking-tabs .ranking-btn')[1].style.color = '#fff';
-            break;
-        case 'playtime':
-            rankings = RankingSystem.getTopPlaytime();
-            title = '⏰ TOP 10 MAIS TEMPO JOGADO';
-            emptyMessage = 'Nenhuma partida registrada ainda!';
-            document.querySelectorAll('.ranking-tabs .ranking-btn')[2].style.background = 'linear-gradient(135deg, #ff6b00 0%, #cc5500 100%)';
-            document.querySelectorAll('.ranking-tabs .ranking-btn')[2].style.color = '#fff';
-            break;
-    }
-    
-    let html = `
-        <div style="text-align: center; margin-bottom: 20px;">
-            <h2 style="font-size: 16px; color: #ffa500; text-shadow: 0 0 10px rgba(255,165,0,0.8);">
-                ${title}
-            </h2>
-        </div>
-    `;
-    
-    if (rankings.length === 0) {
-        html += `
-            <div style="text-align: center; padding: 40px; color: #888; font-size: 12px;">
-                ${emptyMessage}
-            </div>
-        `;
-    } else {
-        html += '<table style="width: 100%; border-collapse: collapse;">';
-        html += `
-            <thead>
-                <tr style="border-bottom: 2px solid #ff6b00; color: #ffa500;">
-                    <th style="padding: 12px; text-align: left; font-size: 11px;">#</th>
-                    <th style="padding: 12px; text-align: left; font-size: 11px;">NICK</th>
-                    <th style="padding: 12px; text-align: center; font-size: 11px;">🎃</th>
-                    <th style="padding: 12px; text-align: center; font-size: 11px;">⏱️</th>
-                </tr>
-            </thead>
-            <tbody>
-        `;
+        document.getElementById('btnInteract').addEventListener('click', e => {
+            game.keys.e = true;
+            setTimeout(() => game.keys.e = false, 100);
+        });
         
-        rankings.forEach((score, index) => {
-            const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
-            const rowColor = index % 2 === 0 ? 'rgba(255,107,0,0.1)' : 'transparent';
-            const isPlayer = score.nick === game.playerNick;
-            const highlightColor = isPlayer ? 'rgba(0,255,136,0.2)' : rowColor;
+        // ===== MENU FUNCTIONS =====
+        function submitNick() {
+            const nick = document.getElementById('nickInput').value.trim();
             
-            html += `
-                <tr style="background: ${highlightColor}; border-bottom: 1px solid rgba(255,107,0,0.2);">
-                    <td style="padding: 10px; color: #fff; font-size: 11px;">
-                        ${medal} ${index + 1}º
-                    </td>
-                    <td style="padding: 10px; color: ${isPlayer ? '#00ff88' : '#fff'}; font-size: 11px; font-weight: ${isPlayer ? 'bold' : 'normal'};">
-                        ${score.nick} ${isPlayer ? '⭐' : ''}
-                    </td>
-                    <td style="padding: 10px; text-align: center; color: #ffa500; font-size: 11px;">
-                        ${score.pumpkins}/5
-                    </td>
-                    <td style="padding: 10px; text-align: center; color: #00ff88; font-size: 11px;">
-                        ${RankingSystem.formatTime(score.time)}
-                    </td>
-                </tr>
-            `;
-        });
+            if (nick.length < 2) {
+                showTooltip('⚠️ Nick deve ter pelo menos 2 caracteres!');
+                return;
+            }
+            
+            game.playerNick = nick;
+            document.getElementById('nickScreen').classList.add('hidden');
+            document.getElementById('startScreen').classList.remove('hidden');
+        }
         
-        html += '</tbody></table>';
-    }
+// ===== FULLSCREEN TOGGLE =====
+function toggleFullscreen() {
+    const elem = document.documentElement;
     
-    document.getElementById('rankingContent').innerHTML = html;
-}
-function useTool() {
-    if (game.currentTool) {
-        const toolNames = {
-            'axe': 'cortando árvores 🪓',
-            'pickaxe': 'quebrando pedras ⛏️', 
-            'key': 'abrindo portas 🔑'
-        };
-        const action = toolNames[game.currentTool.type] || game.currentTool.name;
-        showTooltip(`${game.currentTool.emoji} Ferramenta equipada: ${action}`);
+    if (!document.fullscreenElement) {
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) {
+            elem.msRequestFullscreen();
+        }
+        document.getElementById('fullscreenBtn').textContent = '🖥️ SAIR TELA CHEIA';
     } else {
-        showTooltip('⚠️ Nenhuma ferramenta equipada!');
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+        document.getElementById('fullscreenBtn').textContent = '🖥️ TELA CHEIA';
     }
 }
-        
-        // ===== GAME STATES =====
+       
         function startGame() {
-    document.getElementById('startScreen').classList.add('hidden');
-    game.state = 'playing';
-    game.pumpkinsFound = 0;
-    game.startTime = Date.now();
-    player.x = 5;
-    player.y = 10;
-    player.inventory = [];
-    game.currentTool = null;
-    
-    items.forEach(item => item.collected = false);
-    pumpkins.forEach(pumpkin => pumpkin.collected = false);
-    
-    document.getElementById('pumpkinCount').textContent = '0';
-    document.getElementById('currentTool').textContent = 'Mãos';
-    renderInventory();
-    gameLoop();
-}
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('hud').classList.remove('hidden');
+            document.getElementById('inventory').classList.remove('hidden');
+            document.getElementById('minimap').classList.remove('hidden');
+            document.getElementById('fullscreenBtn').style.display = 'block';
+            document.getElementById('questPanel').classList.remove('hidden');
+            
+            game.state = 'playing';
+            game.startTime = Date.now();
+            game.lastUpdate = Date.now();
+            game.pumpkinsFound = 0;
+            game.score = 0;
+            game.gold = 0;
+            game.quests = [];
+            
+            player.x = 10;
+            player.y = 10;
+            player.health = 100;
+            player.energy = 100;
+            player.inventory = [];
+            game.selectedTool = null;
+            
+            items.forEach(item => item.collected = false);
+            pumpkins.forEach(pumpkin => pumpkin.collected = false);
+            npcs.forEach(npc => npc.questGiven = false);
+            
+            renderInventory();
+            updateHUD();
+            updateQuestPanel();
+            gameLoop();
+        }
         
         function victory() {
-    game.state = 'victory';
-    game.endTime = Date.now();
-    const playTime = game.endTime - game.startTime;
-    
-    // Salvar no ranking
-    RankingSystem.saveScore(game.playerNick, playTime, game.pumpkinsFound);
-    
-    // Mostrar tempo final
-    document.getElementById('finalTime').textContent = RankingSystem.formatTime(playTime);
-    
-    const code = window._getCape();
-    document.getElementById('capeCode').textContent = code;
-    document.getElementById('victoryScreen').classList.remove('hidden');
-}
+            game.state = 'victory';
+            const finalTime = Date.now() - game.startTime;
+            const finalScore = game.score + game.gold * 10;
+            
+            // Save to ranking
+            RankingSystem.saveScore(game.playerNick, finalTime, game.pumpkinsFound, finalScore);
+            
+            // Update victory screen
+            document.getElementById('finalTime').textContent = RankingSystem.formatTime(finalTime);
+            document.getElementById('finalScore').textContent = finalScore;
+            
+            const capeCode = window._getCape();
+            document.getElementById('capeCode').textContent = capeCode;
+            
+            document.getElementById('victoryScreen').classList.remove('hidden');
+        }
+        
+        function copyCape() {
+            const code = document.getElementById('capeCode').textContent;
+            const button = event.target;
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(code).then(() => {
+                    button.textContent = '✅ COPIADO!';
+                    setTimeout(() => button.textContent = '📋 COPIAR CÓDIGO', 2000);
+                });
+            } else {
+                const textarea = document.createElement('textarea');
+                textarea.value = code;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showTooltip('📋 Código copiado!');
+                button.textContent = '✅ COPIADO!';
+                setTimeout(() => button.textContent = '📋 COPIAR CÓDIGO', 2000);
+            }
+        }
+        
+        function showRankings() {
+            document.getElementById('nickScreen').classList.add('hidden');
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('rankingsScreen').classList.remove('hidden');
+            switchRankingTab('score');
+        }
+        
+        function showRankingsFromVictory() {
+            document.getElementById('victoryScreen').classList.add('hidden');
+            document.getElementById('rankingsScreen').classList.remove('hidden');
+            switchRankingTab('score');
+        }
+        
+        function closeRankings() {
+            document.getElementById('rankingsScreen').classList.add('hidden');
+            
+            if (game.state === 'victory') {
+                document.getElementById('victoryScreen').classList.remove('hidden');
+            } else if (game.playerNick) {
+                document.getElementById('startScreen').classList.remove('hidden');
+            } else {
+                document.getElementById('nickScreen').classList.remove('hidden');
+            }
+        }
+        
+        function switchRankingTab(type) {
+            let rankings = [];
+            let title = '';
+            let emptyMessage = '';
+            
+            switch(type) {
+                case 'score':
+                    rankings = RankingSystem.getTopScore();
+                    title = '💯 TOP 10 PONTUAÇÃO';
+                    emptyMessage = 'Nenhuma partida registrada ainda!';
+                    break;
+                case 'speed':
+                    rankings = RankingSystem.getTopSpeed();
+                    title = '⚡ TOP 10 MAIS RÁPIDOS (Jogo Completo)';
+                    emptyMessage = 'Nenhum jogador completou o jogo ainda!';
+                    break;
+                case 'pumpkins':
+                    rankings = RankingSystem.getTopPumpkins();
+                    title = '🎃 TOP 10 MAIS ABÓBORAS';
+                    emptyMessage = 'Nenhuma partida registrada ainda!';
+                    break;
+            }
+            
+            let html = `
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h2 style="font-size: 16px; color: #ffa500; text-shadow: 0 0 10px rgba(255,165,0,0.8);">
+                        ${title}
+                    </h2>
+                </div>
+            `;
+            
+            if (rankings.length === 0) {
+                html += `
+                    <div style="text-align: center; padding: 40px; color: #888; font-size: 12px;">
+                        ${emptyMessage}
+                    </div>
+                `;
+            } else {
+                html += '<table style="width: 100%; border-collapse: collapse;">';
+                html += `
+                    <thead>
+                        <tr style="border-bottom: 2px solid #ff6b00; color: #ffa500;">
+                            <th style="padding: 12px; text-align: left;">#</th>
+                            <th style="padding: 12px; text-align: left;">NICK</th>
+                            <th style="padding: 12px; text-align: center;">🎃</th>
+                            <th style="padding: 12px; text-align: center;">💰</th>
+                            <th style="padding: 12px; text-align: center;">⏱️</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                `;
+                
+                rankings.forEach((entry, index) => {
+                    const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
+                    const isPlayer = entry.nick === game.playerNick;
+                    const rowClass = isPlayer ? 'player-row' : '';
+                    
+                    html += `
+                        <tr class="${rowClass}">
+                            <td style="padding: 10px;">${medal} ${index + 1}º</td>
+                            <td style="padding: 10px; ${isPlayer ? 'font-weight: bold;' : ''}">${entry.nick} ${isPlayer ? '⭐' : ''}</td>
+                            <td style="padding: 10px; text-align: center;">${entry.pumpkins}/10</td>
+                            <td style="padding: 10px; text-align: center;">${entry.score}</td>
+                            <td style="padding: 10px; text-align: center;">${RankingSystem.formatTime(entry.time)}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += '</tbody></table>';
+            }
+            
+            document.getElementById('rankingContent').innerHTML = html;
+        }
+        
+        function showControls() {
+showTooltip(`🎮 CONTROLES:\n\nPC: WASD ou Setas para mover\nE ou Espaço para interagir\n\nMobile: Use os controles na tela\n\nInventário: Clique nos itens para usar/equipar`);
+        }
         
         function showCredits() {
             document.getElementById('victoryScreen').classList.add('hidden');
             document.getElementById('creditsScreen').classList.remove('hidden');
-            
-            // Reiniciar animação
-            const credits = document.querySelector('.credits');
-            credits.style.animation = 'none';
-            setTimeout(() => {
-                credits.style.animation = 'creditsScroll 25s linear';
-            }, 10);
         }
         
         function closeCredits() {
@@ -1931,34 +2670,486 @@ function useTool() {
         }
         
         function restartGame() {
-    document.getElementById('victoryScreen').classList.add('hidden');
-    document.getElementById('creditsScreen').classList.add('hidden');
-    document.getElementById('rankingsScreen').classList.add('hidden');
-    document.getElementById('startScreen').classList.remove('hidden');
-}
+            document.getElementById('victoryScreen').classList.add('hidden');
+            document.getElementById('creditsScreen').classList.add('hidden');
+            document.getElementById('rankingsScreen').classList.add('hidden');
+            document.getElementById('hud').classList.add('hidden');
+            document.getElementById('inventory').classList.add('hidden');
+            document.getElementById('minimap').classList.add('hidden');
+            document.getElementById('questPanel').classList.add('hidden');
+            document.getElementById('startScreen').classList.remove('hidden');
+            
+            game.state = 'menu';
+        }
         
-        function copyCape() {
-            const code = document.getElementById('capeCode').textContent;
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(code).then(() => {
-                    event.target.textContent = '✅ COPIADO!';
-                    setTimeout(() => event.target.textContent = '📋 COPIAR CÓDIGO', 2000);
-                });
-            } else {
-                const t = document.createElement('textarea');
-                t.value = code;
-                t.style.position = 'fixed';
-                t.style.opacity = '0';
-                document.body.appendChild(t);
-                t.select();
-                document.execCommand('copy');
-                document.body.removeChild(t);
-                showTooltip('Código copiado!');
+// Atalho F11 para fullscreen
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'F11') {
+        e.preventDefault();
+        toggleFullscreen();
+    }
+});
+
+        // ===== BACKGROUND STARS =====
+        function createStars() {
+            const bgStars = document.getElementById('bgStars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = (Math.random() * 2 + 1) + 'px';
+                star.style.height = star.style.width;
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                bgStars.appendChild(star);
             }
         }
         
-        // Inicializar inventário
-        renderInventory();
+        // ===== LOADING =====
+        function simulateLoading() {
+            let progress = 0;
+            const loadingFill = document.getElementById('loadingFill');
+            const loadingText = document.getElementById('loadingText');
+            
+            const loadingMessages = [
+                'Gerando mundo mágico...',
+                'Plantando abóboras...',
+                'Invocando NPCs...',
+                'Preparando ferramentas...',
+                'Carregando tesouros...',
+                'Quase pronto...'
+            ];
+            
+            const interval = setInterval(() => {
+                progress += Math.random() * 15 + 5;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    
+                    setTimeout(() => {
+                        document.getElementById('loadingScreen').classList.add('hidden');
+                    }, 500);
+                }
+                
+                loadingFill.style.width = progress + '%';
+                const messageIndex = Math.floor((progress / 100) * loadingMessages.length);
+                loadingText.textContent = loadingMessages[Math.min(messageIndex, loadingMessages.length - 1)];
+            }, 300);
+        }
+        
+        // ===== INITIALIZATION =====
+        window.addEventListener('load', () => {
+            createStars();
+            simulateLoading();
+            renderInventory();
+        });
+        
+        // ===== ENTER KEY ON NICK INPUT =====
+        document.getElementById('nickInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                submitNick();
+            }
+        });
+        
+        // ===== PREVENT CONTEXT MENU =====
+        canvas.addEventListener('contextmenu', e => e.preventDefault());
+        
+        // ===== MOBILE DETECTION =====
+        function isMobile() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+        
+        if (isMobile()) {
+            document.querySelectorAll('.mobile-controls, .action-buttons').forEach(el => {
+                el.style.display = 'flex';
+            });
+        }
+        
+        // ===== PREVENT SCROLL ON MOBILE =====
+        document.body.addEventListener('touchmove', (e) => {
+            if (game.state === 'playing') {
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
+        // ===== AUTO SAVE (OPTIONAL) =====
+        function autoSave() {
+            if (game.state === 'playing') {
+                const saveData = {
+                    playerNick: game.playerNick,
+                    playerX: player.x,
+                    playerY: player.y,
+                    health: player.health,
+                    energy: player.energy,
+                    inventory: player.inventory,
+                    pumpkinsFound: game.pumpkinsFound,
+                    score: game.score,
+                    gold: game.gold,
+                    collectedItems: items.map(i => i.collected),
+                    collectedPumpkins: pumpkins.map(p => p.collected),
+                    quests: game.quests,
+                    startTime: game.startTime
+                };
+                
+                localStorage.setItem('halloweenValleySave', JSON.stringify(saveData));
+            }
+        }
+        
+        function loadSave() {
+            const saveData = localStorage.getItem('halloweenValleySave');
+            if (saveData) {
+                try {
+                    const data = JSON.parse(saveData);
+                    
+                    // Ask player if they want to continue
+                    const continueGame = confirm(`Continuar jogo salvo de ${data.playerNick}?\n\nProgresso: ${data.pumpkinsFound}/10 abóboras\nPontuação: ${data.score}`);
+                    
+                    if (continueGame) {
+                        game.playerNick = data.playerNick;
+                        player.x = data.playerX;
+                        player.y = data.playerY;
+                        player.health = data.health;
+                        player.energy = data.energy;
+                        player.inventory = data.inventory;
+                        game.pumpkinsFound = data.pumpkinsFound;
+                        game.score = data.score;
+                        game.gold = data.gold;
+                        game.quests = data.quests;
+                        game.startTime = data.startTime;
+                        
+                        data.collectedItems.forEach((collected, index) => {
+                            if (items[index]) items[index].collected = collected;
+                        });
+                        
+                        data.collectedPumpkins.forEach((collected, index) => {
+                            if (pumpkins[index]) pumpkins[index].collected = collected;
+                        });
+                        
+                        // Auto start game
+                        document.getElementById('nickInput').value = data.playerNick;
+                        submitNick();
+                        setTimeout(() => startGame(), 100);
+                    }
+                } catch (e) {
+                    console.error('Error loading save:', e);
+                }
+            }
+        }
+        
+        // Auto save every 30 seconds
+        setInterval(autoSave, 30000);
+        
+        // Check for saved game on load
+        setTimeout(() => {
+            if (localStorage.getItem('halloweenValleySave')) {
+                loadSave();
+            }
+        }, 1000);
+        
+        // Save on page unload
+        window.addEventListener('beforeunload', () => {
+            autoSave();
+        });
+        
+        // ===== CHEAT CODES (EASTER EGG) =====
+        let cheatInput = '';
+        document.addEventListener('keypress', (e) => {
+            cheatInput += e.key;
+            cheatInput = cheatInput.slice(-10); // Keep last 10 chars
+            
+            // Cheat: "halloween"
+            if (cheatInput.includes('halloween')) {
+                player.health = player.maxHealth;
+                player.energy = player.maxEnergy;
+                game.gold += 1000;
+                showTooltip('🎃 CHEAT ATIVADO! +1000 Ouro e Vida/Energia cheias!');
+                cheatInput = '';
+            }
+            
+            // Cheat: "pumpkin"
+            if (cheatInput.includes('pumpkin')) {
+                const uncollected = pumpkins.find(p => !p.collected);
+                if (uncollected) {
+                    player.x = uncollected.x;
+                    player.y = uncollected.y;
+                    showTooltip('🎃 Teleportado para próxima abóbora!');
+                }
+                cheatInput = '';
+            }
+            
+            // Cheat: "speed"
+            if (cheatInput.includes('speed')) {
+                player.speed = 0.25;
+                showTooltip('⚡ VELOCIDADE AUMENTADA!');
+                cheatInput = '';
+            }
+        });
+        
+        // ===== ACHIEVEMENT SYSTEM (BONUS) =====
+        const achievements = [
+            { id: 'first_pumpkin', name: 'Primeira Abóbora', description: 'Encontre sua primeira abóbora', unlocked: false },
+            { id: 'half_way', name: 'Meio Caminho', description: 'Encontre 5 abóboras', unlocked: false },
+            { id: 'speed_runner', name: 'Velocista', description: 'Complete em menos de 10 minutos', unlocked: false },
+            { id: 'collector', name: 'Colecionador', description: 'Colete todos os itens', unlocked: false },
+            { id: 'social', name: 'Socialite', description: 'Fale com todos os NPCs', unlocked: false }
+        ];
+        
+        function checkAchievements() {
+            // First pumpkin
+            if (game.pumpkinsFound >= 1 && !achievements[0].unlocked) {
+                achievements[0].unlocked = true;
+                showAchievement(achievements[0]);
+            }
+            
+            // Half way
+            if (game.pumpkinsFound >= 5 && !achievements[1].unlocked) {
+                achievements[1].unlocked = true;
+                showAchievement(achievements[1]);
+            }
+            
+            // Speed runner
+            if (game.pumpkinsFound >= 10 && game.elapsedTime < 600000 && !achievements[2].unlocked) {
+                achievements[2].unlocked = true;
+                showAchievement(achievements[2]);
+            }
+            
+            // Collector
+            const allItemsCollected = items.every(i => i.collected);
+            if (allItemsCollected && !achievements[3].unlocked) {
+                achievements[3].unlocked = true;
+                showAchievement(achievements[3]);
+            }
+            
+            // Social
+            const allNPCsTalked = npcs.every(n => n.questGiven || !n.quest);
+            if (allNPCsTalked && !achievements[4].unlocked) {
+                achievements[4].unlocked = true;
+                showAchievement(achievements[4]);
+            }
+        }
+        
+        function showAchievement(achievement) {
+            const achievementDiv = document.createElement('div');
+            achievementDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #ffa500 0%, #ff6b00 100%);
+                border: 4px solid #fff;
+                border-radius: 15px;
+                padding: 20px;
+                z-index: 500;
+                box-shadow: 0 0 40px rgba(255, 165, 0, 0.9);
+                animation: slideInRight 0.5s, slideOutRight 0.5s 4s;
+                max-width: 300px;
+            `;
+            
+            achievementDiv.innerHTML = `
+                <div style="font-size: 14px; color: #fff; text-shadow: 2px 2px 0 #000; margin-bottom: 10px;">
+                    🏆 CONQUISTA DESBLOQUEADA!
+                </div>
+                <div style="font-size: 12px; color: #fff; text-shadow: 2px 2px 0 #000; font-weight: bold;">
+                    ${achievement.name}
+                </div>
+                <div style="font-size: 9px; color: #fff; text-shadow: 1px 1px 0 #000; margin-top: 5px;">
+                    ${achievement.description}
+                </div>
+            `;
+            
+            document.body.appendChild(achievementDiv);
+            
+            setTimeout(() => {
+                achievementDiv.remove();
+            }, 4500);
+            
+            updateScore(500);
+        }
+        
+        // Add achievement check to update loop
+        setInterval(() => {
+            if (game.state === 'playing') {
+                checkAchievements();
+            }
+        }, 1000);
+        
+        // ===== CSS ANIMATIONS FOR ACHIEVEMENTS =====
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // ===== SOUND EFFECTS (OPTIONAL - Web Audio API) =====
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(frequency, duration, type = 'sine') {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = type;
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+        
+        // Sound effects wrapper
+        const sounds = {
+            collect: () => playSound(800, 0.1, 'square'),
+            pumpkin: () => {
+                playSound(500, 0.1);
+                setTimeout(() => playSound(600, 0.1), 100);
+                setTimeout(() => playSound(700, 0.2), 200);
+            },
+            interact: () => playSound(400, 0.1, 'triangle'),
+            error: () => playSound(200, 0.2, 'sawtooth')
+        };
+        
+        // Add sound effects to game events
+        const originalAddItem = addItem;
+        addItem = function(item) {
+            sounds.collect();
+            return originalAddItem.call(this, item);
+        };
+        
+        // ===== PARTICLE EFFECTS =====
+        class Particle {
+            constructor(x, y, color, velocityX, velocityY) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.velocityX = velocityX;
+                this.velocityY = velocityY;
+                this.life = 1;
+                this.decay = 0.02;
+            }
+            
+            update() {
+                this.x += this.velocityX;
+                this.y += this.velocityY;
+                this.velocityY += 0.1; // gravity
+                this.life -= this.decay;
+                return this.life > 0;
+            }
+            
+            draw(ctx, cameraX, cameraY) {
+                ctx.save();
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                const screenX = (this.x - cameraX) * TILE_SIZE;
+                const screenY = (this.y - cameraY) * TILE_SIZE;
+                ctx.fillRect(screenX, screenY, 4, 4);
+                ctx.restore();
+            }
+        }
+        
+        const particles = [];
+        
+        function createParticleExplosion(x, y, color, count = 20) {
+            for (let i = 0; i < count; i++) {
+                const angle = (Math.PI * 2 * i) / count;
+                const speed = Math.random() * 0.1 + 0.05;
+                particles.push(new Particle(
+                    x,
+                    y,
+                    color,
+                    Math.cos(angle) * speed,
+                    Math.sin(angle) * speed - 0.1
+                ));
+            }
+        }
+        
+        // Update particles in game loop
+        const originalRender = render;
+        render = function() {
+            originalRender.call(this);
+            
+            // Update and draw particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                if (!particles[i].update()) {
+                    particles.splice(i, 1);
+                } else {
+                    particles[i].draw(ctx, game.camera.x, game.camera.y);
+                }
+            }
+        };
+        
+        // Add particle effect when collecting pumpkin
+        const originalPumpkinCollect = pumpkins;
+        pumpkins.forEach(pumpkin => {
+            const originalCollected = Object.getOwnPropertyDescriptor(pumpkin, 'collected');
+            Object.defineProperty(pumpkin, 'collected', {
+                get: function() {
+                    return this._collected;
+                },
+                set: function(value) {
+                    if (value && !this._collected) {
+                        createParticleExplosion(this.x, this.y, '#ff8c00', 30);
+                        sounds.pumpkin();
+                    }
+                    this._collected = value;
+                }
+            });
+            pumpkin._collected = false;
+        });
+        
+        // ===== CONSOLE WELCOME MESSAGE =====
+        console.log('%c🎃 HALLOWEEN VALLEY 🎃', 'font-size: 24px; color: #ff8c00; font-weight: bold; text-shadow: 2px 2px 0 #000;');
+        console.log('%cDesenvolvido por VEGOTS - YORUS', 'font-size: 14px; color: #00ff88;');
+        console.log('%cVersão 1.0.0', 'font-size: 12px; color: #888;');
+        console.log('%c\nCheats disponíveis:\n- Digite "halloween" para ganhar 1000 de ouro\n- Digite "pumpkin" para teleportar para próxima abóbora\n- Digite "speed" para aumentar velocidade', 'font-size: 10px; color: #ffa500;');
+        
+        // ===== FINAL MESSAGE =====
+        console.log('%c\n✨ Jogo carregado com sucesso! Divirta-se! ✨', 'font-size: 14px; color: #00ff88; font-weight: bold;');
     </script>
+
+<!-- Fullscreen Button -->
+<button id="fullscreenBtn" style="
+    position: fixed;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #ff6b00 0%, #cc5500 100%);
+    border: 3px solid #fff;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    color: #fff;
+    cursor: pointer;
+    z-index: 200;
+    box-shadow: 0 0 20px rgba(255, 107, 0, 0.8);
+    display: none;
+" onclick="toggleFullscreen()">
+    🖥️ TELA CHEIA
+</button>
+
 </body>
 </html>
